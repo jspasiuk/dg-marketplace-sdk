@@ -1,10 +1,10 @@
-const axios = require("axios");
+import axios from "axios";
 
 class Marketplace {
-  backend_url = "";
+  backend_url: string = "";
   constructor() {}
 
-  init(backend_url) {
+  init(backend_url: string) {
     this.backend_url = backend_url;
   }
 
@@ -26,9 +26,11 @@ class Marketplace {
     }
   }
 
-  async getGroups(collectionId) {}
+  async getGroups(collectionId: number) {}
 
-  async getTokens(collectionId, groupId) {}
+  async getTokens(collectionId: number, groupId: number) {}
 }
 
-module.exports = new Marketplace();
+const marketplace = new Marketplace();
+
+export default marketplace;
