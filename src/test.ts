@@ -4,6 +4,6 @@ const backend_url = "http://localhost:3000";
 
 marketplace.init(backend_url);
 
-marketplace.getCollections().then((collections) => {
+marketplace.getCollections(false).then((collections) => {
   console.log(collections);
 });
