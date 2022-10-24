@@ -15,6 +15,14 @@ Install my-project with npm
 - Full typescript
 - Metamask Support
 
+## Usage/Examples
+
+```javascript
+import DGMarketplace from "dg-marketplace-sdk";
+
+DGMarketplace.init(BASE_DG_URL, META_SERVER, RPC_PROVIDER);
+```
+
 ## Roadmap
 
 - Improve MetaTx functions to reuse code
