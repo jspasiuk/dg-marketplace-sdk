@@ -1,7 +1,26 @@
-# dg-marketplace-sdk
+# DG Marketplace SDK
 
-Typescript SDK for DG Marketplace
+This SDK allows you to implement Decentral Games ICE Marketplace into your web app.
 
-## TODO:
+## Installation
 
-[] Add ethers to handle prices in whei
+Install my-project with npm
+
+```bash
+  npm install dg-marketplace-sdk
+```
+
+## Features
+
+- Full typescript
+- Metamask Support
+
+## Roadmap
+
+- Improve MetaTx functions to reuse code
+
+- Add metamask provider inside the sdk
+
+- Handle isActive inside the sdk
+
+- Handle user wallet inside the sdk

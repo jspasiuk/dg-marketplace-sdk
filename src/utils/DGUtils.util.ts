@@ -1,6 +1,16 @@
-const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000";
-const ICE_ADDRESS = "0x0000000000000000000000000000000000000000";
+import { CONTRACT_ADDRESS, ICE_ADDRESS } from "../constants";
+
 const EXECUTE_META_TRANSACTION_FUNCTION_SELECTOR = "0c53c51c";
+
+export const fixIpfsImage = (image: string) => {
+  if (!image) return "";
+  if (image.substr(0, 4) === "ipfs") {
+    image = image.replace("ipfs://", "");
+    image = image.replace("ipfs/", "");
+    image = image = "https://ipfs.io/ipfs/" + image;
+  }
+  return image;
+};
 
 export const metaTransactionType = [
   { name: "nonce", type: "uint256" },
@@ -8,15 +18,39 @@ export const metaTransactionType = [
   { name: "functionSignature", type: "bytes" },
 ];
 
-export function getSalt(chainId: number) {
+export function getSalt(chainId: number | string) {
   if (typeof chainId === "number") {
     return `0x${to32Bytes(chainId.toString(16))}`;
   }
 
   return `0x${to32Bytes(chainId)}`;
 }
+export function to32Bytes(value: number | string) {
+  return padStart(value.toString().replace("0x", ""), 64);
+}
+function padStart(src: string, length: number) {
+  const len = src.length;
+  if (len >= length) return src;
+  if (len % 2 !== 0) src = "0" + src;
+  if (len < length)
+    while (src.length < length) {
+      src = "0" + src;
+    }
+  return src;
+}
 
-export function getDomainData(salt, name, address) {
+function padEnd(src: string, length: number) {
+  const len = src.length;
+  if (len >= length) return src;
+  if (len % 2 !== 0) src = "0" + src;
+  if (len < length)
+    while (src.length < length) {
+      src += "0";
+    }
+  return src;
+}
+
+export function getDomainData(salt: any, address: string) {
   const domainData = {
     name: "DGMarketplace",
     version: "v1.0",
@@ -54,37 +88,7 @@ export function getDomainData(salt, name, address) {
   return { domainData, iceDomainData, domainType, DgDomainData, DgDomainType };
 }
 
-function padStart(src, length) {
-  const len = src.length;
-  if (len >= length) return src;
-  if (len % 2 !== 0) src = "0" + src;
-  if (len < length)
-    while (src.length < length) {
-      src = "0" + src;
-    }
-  return src;
-}
-
-function padEnd(src, length) {
-  const len = src.length;
-  if (len >= length) return src;
-  if (len % 2 !== 0) src = "0" + src;
-  if (len < length)
-    while (src.length < length) {
-      src += "0";
-    }
-  return src;
-}
-
-export function to32Bytes(value) {
-  return padStart(value.toString().replace("0x", ""), 64);
-}
-
-export function normalizeVersion(version) {
-  /*
-    This is a fix for an issue with Ledger, where v is returned as 0 or 1 and we expect it to be 27 or 28.
-    See issue #26 of decentraland-transactions for more details: https://github.com/decentraland/decentraland-transactions/issues/26
-  */
+export function normalizeVersion(version: string) {
   let parsed = parseInt(version, 16);
   if (parsed < 27) {
     // this is because Ledger returns 0 or 1
@@ -97,9 +101,9 @@ export function normalizeVersion(version) {
 }
 
 export function getExecuteMetaTransactionData(
-  account,
-  fullSignature,
-  functionSignature
+  account: any,
+  fullSignature: any,
+  functionSignature: any
 ) {
   const signature = fullSignature.replace("0x", "");
   const r = signature.substring(0, 64);
