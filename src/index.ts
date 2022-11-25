@@ -1,8 +1,8 @@
 import DGMarketplace from "./class/DGMarketplace.class";
 import { CONTRACT_ADDRESS, CONTRACT_ABI, ICE_ADDRESS } from "./constants";
 
-const dgMarketplace = new DGMarketplace();
+const DGMarketplaceInstance = new DGMarketplace();
 
-export default dgMarketplace;
+//export default dgMarketplace;
 
-export { CONTRACT_ADDRESS, CONTRACT_ABI, ICE_ADDRESS };
+export { DGMarketplaceInstance, CONTRACT_ADDRESS, CONTRACT_ABI, ICE_ADDRESS };

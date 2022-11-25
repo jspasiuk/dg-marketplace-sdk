@@ -141,12 +141,10 @@ class DGMarketplace {
       const data = await response.json();
 
       const Groups = [];
-      for (const group of data.data.marketListingGrouped) {
+      for (const group of data.data.marketplaceListings) {
         const image = fixIpfsImage(group.imageUrl);
 
-        const price = ethers.utils
-          .formatEther(group.price.toString())
-          .toString();
+        const price = group.price;
 
         Groups.push({
           address: group.nftAddress,
@@ -173,7 +171,7 @@ class DGMarketplace {
   async getTokens(collectionAddress: string, groupId: string) {
     this.validateConnection();
     try {
-      const url = `/marketplace/listings/${collectionAddress}/${groupId}`;
+      const url = `/marketplace/nft/${collectionAddress}/${groupId}`;
 
       const response = await this.get(url);
       const data = await response.json();
@@ -182,9 +180,7 @@ class DGMarketplace {
       for (const token of data.data) {
         const image = fixIpfsImage(token.imageUrl);
 
-        const price = ethers.utils
-          .formatEther(token.price.toString())
-          .toString();
+        const price = token.price;
 
         Tokens.push({
           address: token.nftAddress,
