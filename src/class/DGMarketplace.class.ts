@@ -171,14 +171,14 @@ class DGMarketplace {
   async getTokens(collectionAddress: string, groupId: string) {
     this.validateConnection();
     try {
-      const url = `/marketplace/nft/${collectionAddress}/${groupId}`;
+      const url = `/marketplace/collection/${collectionAddress}/${groupId}`;
 
       const response = await this.get(url);
       const data = await response.json();
 
       const Tokens = [];
       for (const token of data.data) {
-        const image = fixIpfsImage(token.imageUrl);
+        const image = fixIpfsImage(token.image);
 
         const price = token.price;
 
