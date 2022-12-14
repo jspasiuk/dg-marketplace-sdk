@@ -85,7 +85,7 @@ class DGMarketplace {
           symbol: token.symbol,
           resourceId: token.resourceId,
           image,
-          price: ethers.utils.formatEther(token.price.toString()),
+          price: token.price,
         });
       }
 
