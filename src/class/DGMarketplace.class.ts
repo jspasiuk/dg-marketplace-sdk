@@ -95,14 +95,18 @@ class DGMarketplace {
     }
   }
 
-  async getCollections(verifiedCreator: boolean) {
+  async getCollections(sellerAddress: string, collectionName: string) {
     this.validateConnection();
     try {
-      const response = await this.get(`/marketplace/collections`);
+      let url = "/marketplace/collections?1=1";
+      url += sellerAddress ? `&sellerAddress=${sellerAddress}` : "";
+      url += collectionName ? `&name=${collectionName}` : "";
+
+      const response = await this.get(url);
       const data = await response.json();
 
       const Collections = [];
-      for (const collection of data.data) {
+      for (const collection of data.data.marketplaceCollections) {
         const CollectionImages = [];
         if (collection.images) {
           for (const image of collection.images) {
@@ -113,6 +117,7 @@ class DGMarketplace {
           address: collection.nftAddress,
           name: collection.name,
           images: CollectionImages,
+          isVerifiedCreator: collection.isVerified,
         });
       }
 
@@ -127,7 +132,8 @@ class DGMarketplace {
     order?: string,
     limit?: number,
     offset?: number,
-    name?: string
+    name?: string,
+    sellerAddress?: string
   ) {
     this.validateConnection();
     try {
@@ -136,6 +142,7 @@ class DGMarketplace {
       url += limit ? `&limit=${limit}` : "";
       url += offset ? `&offset=${offset}` : "";
       url += name ? `&name=${name}` : "";
+      url += sellerAddress ? `&sellerAddress=${sellerAddress}` : "";
 
       const response = await this.get(url);
       const data = await response.json();
@@ -177,7 +184,7 @@ class DGMarketplace {
       const data = await response.json();
 
       const Tokens = [];
-      for (const token of data.data) {
+      for (const token of data.data.marketplaceCollections) {
         const image = fixIpfsImage(token.image);
 
         const price = token.price;
