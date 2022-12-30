@@ -137,12 +137,16 @@ class DGMarketplace {
   ) {
     this.validateConnection();
     try {
-      let url = `/marketplace?nftAddress=${collectionAddress}`;
+      let url = ``;
+      if (sellerAddress) {
+        url = `/marketplace/not-grouped?nftAddress=${collectionAddress}&sellerAddress=${sellerAddress}`;
+      } else {
+        url = `/marketplace?nftAddress=${collectionAddress}`;
+      }
       url += order ? `&price=${order}` : "";
       url += limit ? `&limit=${limit}` : "";
       url += offset ? `&offset=${offset}` : "";
       url += name ? `&name=${name}` : "";
-      url += sellerAddress ? `&sellerAddress=${sellerAddress}` : "";
 
       const response = await this.get(url);
       const data = await response.json();
@@ -175,10 +179,15 @@ class DGMarketplace {
     }
   }
 
-  async getTokens(collectionAddress: string, groupId: string) {
+  async getTokens(
+    collectionAddress: string,
+    groupId: string,
+    sellerAddress?: string
+  ) {
     this.validateConnection();
     try {
-      const url = `/marketplace/collection/${collectionAddress}/${groupId}`;
+      let url = `/marketplace/collection/${collectionAddress}/${groupId}`;
+      url += sellerAddress ? `?sellerAddress=${sellerAddress}` : "";
 
       const response = await this.get(url);
       const data = await response.json();
@@ -228,7 +237,7 @@ class DGMarketplace {
       }
 
       const response = await this.get(
-        `/${platform}/payment-link?address=${tokenAddress}&buyerAddress=${buyerAddress}&tokenId=${tokenId}&resourceId=${resourceId}&currency=USDT`
+        `/${platform}/payment-link?nftAddress=${tokenAddress}&buyerAddress=${buyerAddress}&tokenId=${tokenId}&resourceId=${resourceId}&currency=USDT`
       );
       const data = await response.json();
 
@@ -384,12 +393,12 @@ class DGMarketplace {
     metamaskProvider: any,
     userAddress: string,
     tokenAddress: string,
-    tokenId: string
+    tokenIdArray: [string]
   ) {
     try {
       const approveHex = await this.contract.populateTransaction.cancel(
         tokenAddress,
-        [tokenId]
+        tokenIdArray
       );
 
       const { domainData, domainType } = getDomainData(
