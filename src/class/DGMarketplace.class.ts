@@ -95,12 +95,19 @@ class DGMarketplace {
     }
   }
 
-  async getCollections(sellerAddress: string, collectionName: string) {
+  async getCollections(
+    sellerAddress: string,
+    collectionName: string,
+    limit?: number,
+    offset?: number
+  ) {
     this.validateConnection();
     try {
       let url = "/marketplace/collections?1=1";
       url += sellerAddress ? `&sellerAddress=${sellerAddress}` : "";
       url += collectionName ? `&name=${collectionName}` : "";
+      url += limit ? `&limit=${limit}` : "";
+      url += offset ? `&offset=${offset}` : "";
 
       const response = await this.get(url);
       const data = await response.json();
