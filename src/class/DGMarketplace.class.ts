@@ -8,6 +8,7 @@ import {
 import {
   CONTRACT_ADDRESS,
   CONTRACT_ABI,
+  ERC721CollectionV2,
   ICE_ADDRESS,
   ABI_20,
 } from "../constants";
@@ -21,7 +22,7 @@ class DGMarketplace {
   userIceBalance: number = 0;
   userIceAllowance: number = 0;
   iceContract: any;
-  userWallet: string = "";
+  polygonProvider: any;
   walletProvider: any;
   walletProviderType: string = "";
 
@@ -31,41 +32,37 @@ class DGMarketplace {
     backend_url,
     gasServer_url,
     polygonRpcProvider_url,
-    userWallet,
-    walletProvider,
-    walletProviderType,
   }: {
     backend_url: string;
     gasServer_url: string;
     polygonRpcProvider_url: string;
-    userWallet: string;
-    walletProvider: any;
-    walletProviderType: string;
   }) {
     this.backend_url = backend_url;
     this.gasServer_url = gasServer_url;
     this.polygonRpcProvider_url = polygonRpcProvider_url;
 
     await this.getIceValue();
+  }
 
-    const iceContract = new ethers.Contract(ICE_ADDRESS, ABI_20, this.signer);
-
-    this.iceContract = iceContract;
-    this.userWallet = userWallet;
+  async initProvider(walletProvider: any, walletProviderType: string) {
     this.walletProvider = walletProvider;
     this.walletProviderType = walletProviderType;
+  }
 
-    const iceAllowance = await iceContract.allowance(
+  async getIceAllowance(userWallet: string) {
+    const iceAllowance = await this.iceContract.allowance(
       userWallet,
       CONTRACT_ADDRESS
     );
 
-    const balance = await iceContract.balanceOf(userWallet);
+    const balance = await this.iceContract.balanceOf(userWallet);
     const balanceFormatted = ethers.utils.formatEther(balance.toString());
     this.userIceBalance = Math.round(+balanceFormatted * 1e4) / 1e4;
 
     const allowedIce = ethers.utils.formatEther(iceAllowance.toString());
     this.userIceAllowance = Math.round(+allowedIce * 1e4) / 1e4;
+
+    return { balance: this.userIceBalance, allowance: this.userIceAllowance };
   }
 
   validateConnection() {
@@ -89,6 +86,10 @@ class DGMarketplace {
         signer
       );
 
+      const iceContract = new ethers.Contract(ICE_ADDRESS, ABI_20, signer);
+
+      this.polygonProvider = provider;
+      this.iceContract = iceContract;
       this.contract = contract;
       this.signer = signer;
 
@@ -294,12 +295,7 @@ class DGMarketplace {
     }
   }
 
-  async buyItem(
-    metamaskProvider: any,
-    userAddress: string,
-    tokenAddress: string,
-    tokenId: string
-  ) {
+  async buyItem(userAddress: string, tokenAddress: string, tokenId: string) {
     try {
       const approveHex = await this.contract.populateTransaction.buy(
         tokenAddress,
@@ -329,12 +325,10 @@ class DGMarketplace {
         message: message,
       });
 
-      const metamaskSignature = await metamaskProvider.request({
-        method: "eth_signTypedData_v4",
-        params: [userAddress, dataToSign],
-        jsonrpc: "2.0",
-        id: 999999999999,
-      });
+      const userSignature = await this.requestUserSignature(
+        userAddress,
+        dataToSign
+      );
 
       const serverPayload = JSON.stringify({
         transactionData: {
@@ -343,7 +337,7 @@ class DGMarketplace {
             CONTRACT_ADDRESS,
             getExecuteMetaTransactionData(
               userAddress,
-              metamaskSignature,
+              userSignature,
               approveHex.data
             ),
           ],
@@ -506,7 +500,7 @@ class DGMarketplace {
     }
   }
 
-  async approveContractIce() {
+  async approveContractIce(userWallet: string) {
     try {
       const approveHex = await this.iceContract.populateTransaction.approve(
         CONTRACT_ADDRESS,
@@ -515,11 +509,14 @@ class DGMarketplace {
 
       const { iceDomainData, domainType } = getDomainData(ICE_ADDRESS, "");
 
-      const nonce = await this.iceContract.getNonce();
+      debugger;
+      const nonce = await this.iceContract.getNonce(userWallet);
+
+      debugger;
 
       const message = {
         nonce: nonce.toString(),
-        from: this.userWallet,
+        from: userWallet,
         functionSignature: approveHex.data,
       };
 
@@ -533,15 +530,19 @@ class DGMarketplace {
         message: message,
       });
 
-      const userSignature = this.requestUserSignature(dataToSign);
+      const userSignature = await this.requestUserSignature(
+        userWallet,
+        dataToSign
+      );
+      debugger;
 
       const serverPayload = JSON.stringify({
         transactionData: {
-          from: this.userWallet,
+          from: userWallet,
           params: [
-            CONTRACT_ADDRESS,
+            ICE_ADDRESS,
             getExecuteMetaTransactionData(
-              this.userWallet,
+              userWallet,
               userSignature,
               approveHex.data
             ),
@@ -557,6 +558,40 @@ class DGMarketplace {
         throw new Error(data.message);
       }
 
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getTransactionStatus(txnHash: string) {
+    try {
+      const txReceipt = await this.polygonProvider.getTransactionReceipt(
+        txnHash
+      );
+      if (txReceipt && txReceipt.blockNumber) {
+        const tx = await this.polygonProvider.getTransaction(txnHash);
+        const status = await tx.wait(1, 10000);
+        return { txReceipt, tx, status };
+      } else {
+        return { txReceipt, tx: null, status: null };
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getTokenMetadata(collectionAddress: string, tokenId: string) {
+    try {
+      const contract = new ethers.Contract(
+        collectionAddress,
+        ERC721CollectionV2,
+        this.signer
+      );
+
+      const tokenMetadata = await contract.tokenURI(tokenId);
+      const response = await fetch(tokenMetadata);
+      const data = await response.json();
       return data;
     } catch (error) {
       throw error;
@@ -581,22 +616,26 @@ class DGMarketplace {
     });
   }
 
-  async requestUserSignature(dataToSign: string) {
+  async requestUserSignature(userWallet: string, dataToSign: string) {
     let status;
     switch (this.walletProviderType) {
       case "metamask":
         status = await this.walletProvider.request({
           method: "eth_signTypedData_v4",
-          params: [this.userWallet, dataToSign],
+          params: [userWallet, dataToSign],
           jsonrpc: "2.0",
           id: 999999999999,
         });
         break;
       case "web3auth":
-        status = await this.walletProvider.provider.send({
-          method: "eth_signTypedData_v4",
-          params: [this.userWallet, dataToSign],
-        });
+        const etherProvider = new ethers.providers.Web3Provider(
+          this.walletProvider
+        );
+        const signer = etherProvider.getSigner();
+        status = await signer.provider.send("eth_signTypedData_v4", [
+          userWallet,
+          dataToSign,
+        ]);
         break;
       default:
         break;
