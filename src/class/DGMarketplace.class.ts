@@ -44,7 +44,10 @@ class DGMarketplace {
     await this.getIceValue();
   }
 
-  async initProvider(walletProvider: any, walletProviderType: string) {
+  async initProvider(
+    walletProvider: any,
+    walletProviderType: "metamask" | "web3auth"
+  ) {
     this.walletProvider = walletProvider;
     this.walletProviderType = walletProviderType;
   }
@@ -230,12 +233,16 @@ class DGMarketplace {
   async getTokens(
     collectionAddress: string,
     groupId: string,
-    sellerAddress?: string
+    sellerAddress?: string,
+    limit?: number,
+    offset?: number
   ) {
     this.validateConnection();
     try {
-      let url = `/marketplace/collection/${collectionAddress}/${groupId}`;
-      url += sellerAddress ? `?sellerAddress=${sellerAddress}` : "";
+      let url = `/marketplace/collection/${collectionAddress}/${groupId}?1=1`;
+      url += sellerAddress ? `&sellerAddress=${sellerAddress}` : "";
+      url += limit ? `&limit=${limit}` : "";
+      url += offset ? `&offset=${offset}` : "";
 
       const response = await this.get(url);
       const data = await response.json();
@@ -509,10 +516,7 @@ class DGMarketplace {
 
       const { iceDomainData, domainType } = getDomainData(ICE_ADDRESS, "");
 
-      debugger;
       const nonce = await this.iceContract.getNonce(userWallet);
-
-      debugger;
 
       const message = {
         nonce: nonce.toString(),
@@ -534,7 +538,6 @@ class DGMarketplace {
         userWallet,
         dataToSign
       );
-      debugger;
 
       const serverPayload = JSON.stringify({
         transactionData: {
@@ -571,7 +574,7 @@ class DGMarketplace {
       );
       if (txReceipt && txReceipt.blockNumber) {
         const tx = await this.polygonProvider.getTransaction(txnHash);
-        const status = await tx.wait(1, 10000);
+        const status = await tx.wait();
         return { txReceipt, tx, status };
       } else {
         return { txReceipt, tx: null, status: null };
