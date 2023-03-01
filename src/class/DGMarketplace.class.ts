@@ -569,15 +569,16 @@ class DGMarketplace {
 
   async getTransactionStatus(txnHash: string) {
     try {
-      const txReceipt = await this.polygonProvider.getTransactionReceipt(
-        txnHash
-      );
-      if (txReceipt && txReceipt.blockNumber) {
-        const tx = await this.polygonProvider.getTransaction(txnHash);
-        const status = await tx.wait();
-        return { txReceipt, tx, status };
+      let txReceipt = await this.polygonProvider.getTransactionReceipt(txnHash);
+      while (!txReceipt) {
+        await this.polygonProvider.waitForTransaction(txnHash);
+        txReceipt = await this.polygonProvider.getTransactionReceipt(txnHash);
+      }
+
+      if (txReceipt.status === 1) {
+        return { txReceipt, status: true };
       } else {
-        return { txReceipt, tx: null, status: null };
+        return { txReceipt, status: false };
       }
     } catch (error) {
       throw error;
