@@ -281,6 +281,12 @@ class DGMarketplace {
     resourceId: string
   ) {
     this.validateConnection();
+
+    const isValid = await this.validateListing(tokenAddress, tokenId);
+    if (!isValid) {
+      throw new Error("Invalid listing");
+    }
+
     try {
       switch (platform) {
         case "paper":
@@ -304,6 +310,11 @@ class DGMarketplace {
 
   async buyItem(userAddress: string, tokenAddress: string, tokenId: string) {
     try {
+      const isValid = await this.validateListing(tokenAddress, tokenId);
+      if (!isValid) {
+        throw new Error("Invalid listing");
+      }
+
       const approveHex = await this.contract.populateTransaction.buy(
         tokenAddress,
         [tokenId]
@@ -365,8 +376,26 @@ class DGMarketplace {
     }
   }
 
+  async validateListing(tokenAddress: string, tokenId: string) {
+    try {
+      const body = {
+        nftAddress: tokenAddress,
+        tokenId,
+      };
+      const response = await this.post(
+        `${this.backend_url}/marketplace/listings/market-validate-published-nft`,
+        JSON.stringify(body)
+      );
+
+      const data = await response.json();
+
+      return data?.data?.isValid;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async sendAsGift(
-    metamaskProvider: any,
     userAddress: string,
     giftAddress: string,
     tokenAddress: string,
@@ -402,12 +431,10 @@ class DGMarketplace {
         message: message,
       });
 
-      const metamaskSignature = await metamaskProvider.request({
-        method: "eth_signTypedData_v4",
-        params: [userAddress, dataToSign],
-        jsonrpc: "2.0",
-        id: 999999999999,
-      });
+      const userSignature = await this.requestUserSignature(
+        userAddress,
+        dataToSign
+      );
 
       const serverPayload = JSON.stringify({
         transactionData: {
@@ -416,7 +443,7 @@ class DGMarketplace {
             CONTRACT_ADDRESS,
             getExecuteMetaTransactionData(
               userAddress,
-              metamaskSignature,
+              userSignature,
               approveHex.data
             ),
           ],
@@ -580,6 +607,18 @@ class DGMarketplace {
       } else {
         return { txReceipt, status: false };
       }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getCoinbaseStatus(paymentCode: string) {
+    try {
+      const response = await this.get(
+        `/coinbase/payment-status?code=${paymentCode}`
+      );
+      const data = await response.json();
+      return data;
     } catch (error) {
       throw error;
     }

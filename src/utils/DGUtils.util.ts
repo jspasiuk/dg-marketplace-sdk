@@ -7,7 +7,7 @@ export const fixIpfsImage = (image: string) => {
   if (image.substr(0, 4) === "ipfs") {
     image = image.replace("ipfs://", "");
     image = image.replace("ipfs/", "");
-    image = image = "https://ipfs.io/ipfs/" + image;
+    image = image = "https://cloudflare-ipfs.com/ipfs/" + image;
   }
   return image;
 };
