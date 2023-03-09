@@ -188,12 +188,13 @@ class DGMarketplace {
   ) {
     this.validateConnection();
     try {
-      let url = ``;
-      if (sellerAddress) {
+      let url = `/marketplace?nftAddress=${collectionAddress}`;
+      /*if (sellerAddress) {
         url = `/marketplace/not-grouped?nftAddress=${collectionAddress}&sellerAddress=${sellerAddress}`;
       } else {
         url = `/marketplace?nftAddress=${collectionAddress}`;
-      }
+      }*/
+      url += sellerAddress ? `&sellerAddress=${sellerAddress}` : "";
       url += order ? `&price=${order}` : "";
       url += limit ? `&limit=${limit}` : "";
       url += offset ? `&offset=${offset}` : "";
