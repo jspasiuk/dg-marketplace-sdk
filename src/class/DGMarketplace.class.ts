@@ -4,6 +4,7 @@ import {
   getDomainData,
   metaTransactionType,
   getExecuteMetaTransactionData,
+  isUrl,
 } from "../utils/DGUtils.util";
 import {
   CONTRACT_ADDRESS,
@@ -188,13 +189,12 @@ class DGMarketplace {
   ) {
     this.validateConnection();
     try {
-      let url = `/marketplace?nftAddress=${collectionAddress}`;
-      /*if (sellerAddress) {
-        url = `/marketplace/not-grouped?nftAddress=${collectionAddress}&sellerAddress=${sellerAddress}`;
+      let url = ``;
+      if (sellerAddress) {
+        url = `/marketplace/user-listings-by-collection/${sellerAddress}/${collectionAddress}?1=1`;
       } else {
         url = `/marketplace?nftAddress=${collectionAddress}`;
-      }*/
-      url += sellerAddress ? `&sellerAddress=${sellerAddress}` : "";
+      }
       url += order ? `&price=${order}` : "";
       url += limit ? `&limit=${limit}` : "";
       url += offset ? `&offset=${offset}` : "";
@@ -472,6 +472,14 @@ class DGMarketplace {
     tokenIdArray: [string]
   ) {
     try {
+      for (let i = 0; i < tokenIdArray.length; i++) {
+        const tokenId = tokenIdArray[i];
+        const isValid = await this.validateListing(tokenAddress, tokenId);
+        if (!isValid) {
+          throw new Error("Invalid listing");
+        }
+      }
+
       const approveHex = await this.contract.populateTransaction.cancel(
         tokenAddress,
         tokenIdArray
@@ -633,10 +641,14 @@ class DGMarketplace {
         this.signer
       );
 
-      const tokenMetadata = await contract.tokenURI(tokenId);
-      const response = await fetch(tokenMetadata);
-      const data = await response.json();
-      return data;
+      const tokenUri = await contract.tokenURI(tokenId);
+      if (isUrl(tokenUri)) {
+        const response = await fetch(tokenUri);
+        const data = await response.json();
+        return data;
+      } else {
+        throw new Error("Invalid token URI");
+      }
     } catch (error) {
       throw error;
     }
