@@ -144,7 +144,8 @@ class DGMarketplace {
     sellerAddress: string,
     collectionName: string,
     limit?: number,
-    offset?: number
+    offset?: number,
+    filterCollections?: string
   ) {
     this.validateConnection();
     try {
@@ -153,6 +154,7 @@ class DGMarketplace {
       url += collectionName ? `&name=${collectionName}` : "";
       url += limit ? `&limit=${limit}` : "";
       url += offset ? `&offset=${offset}` : "";
+      url += filterCollections ? `&nftAddress=${filterCollections}` : "";
 
       const response = await this.get(url);
       const data = await response.json();
