@@ -7,16 +7,16 @@ import {
   isUrl,
 } from "../utils/DGUtils.util";
 import {
-  CONTRACT_ADDRESS,
   CONTRACT_ABI,
   ERC721CollectionV2,
   ICE_ADDRESS,
   ABI_20,
 } from "../constants";
 class DGMarketplace {
-  backend_url: string = "";
-  gasServer_url: string = "";
-  polygonRpcProvider_url: string = "";
+  apiUrl: string = "";
+  gasServerUrl: string = "";
+  polygonRpcProvider: string = "";
+  theGraphUrl: string = "";
   iceValue: string = "";
   contract: any;
   signer: any;
@@ -26,21 +26,28 @@ class DGMarketplace {
   polygonProvider: any;
   walletProvider: any;
   walletProviderType: string = "";
+  contractAddress: string = "";
 
   constructor() {}
 
   async init({
-    backend_url,
-    gasServer_url,
-    polygonRpcProvider_url,
+    apiUrl,
+    gasServerUrl,
+    polygonRpcProvider,
+    contractAddress,
+    theGraphUrl,
   }: {
-    backend_url: string;
-    gasServer_url: string;
-    polygonRpcProvider_url: string;
+    apiUrl: string;
+    gasServerUrl: string;
+    polygonRpcProvider: string;
+    contractAddress: string;
+    theGraphUrl: string;
   }) {
-    this.backend_url = backend_url;
-    this.gasServer_url = gasServer_url;
-    this.polygonRpcProvider_url = polygonRpcProvider_url;
+    this.apiUrl = apiUrl;
+    this.gasServerUrl = gasServerUrl;
+    this.polygonRpcProvider = polygonRpcProvider;
+    this.contractAddress = contractAddress;
+    this.theGraphUrl = theGraphUrl;
 
     await this.getIceValue();
   }
@@ -56,7 +63,7 @@ class DGMarketplace {
   async getIceAllowance(userWallet: string) {
     const iceAllowance = await this.iceContract.allowance(
       userWallet,
-      CONTRACT_ADDRESS
+      this.contractAddress
     );
 
     const balance = await this.iceContract.balanceOf(userWallet);
@@ -70,22 +77,22 @@ class DGMarketplace {
   }
 
   validateConnection() {
-    if (this.backend_url === "") {
+    if (this.apiUrl === "") {
       throw new Error("Backend URL is not set");
     }
   }
 
   getContract(userAddress: string) {
-    if (!this.polygonRpcProvider_url) {
+    if (!this.polygonRpcProvider) {
       throw new Error("Polygon RPC provider URL is not set");
     }
     try {
       const provider = new ethers.providers.JsonRpcProvider(
-        this.polygonRpcProvider_url
+        this.polygonRpcProvider
       );
       const signer = provider.getSigner(userAddress);
       const contract = new ethers.Contract(
-        CONTRACT_ADDRESS,
+        this.contractAddress,
         CONTRACT_ABI,
         signer
       );
@@ -140,38 +147,45 @@ class DGMarketplace {
     }
   }
 
-  async getCollections(
-    sellerAddress: string,
-    collectionName: string,
-    limit?: number,
-    offset?: number,
-    filterCollections?: string
-  ) {
+  async getCollections({
+    limit = 100,
+    offset = 0,
+  }: {
+    limit: number;
+    offset: number;
+  }) {
     this.validateConnection();
     try {
-      let url = "/marketplace/collections?1=1";
-      url += sellerAddress ? `&sellerAddress=${sellerAddress}` : "";
-      url += collectionName ? `&name=${collectionName}` : "";
-      url += limit ? `&limit=${limit}` : "";
-      url += offset ? `&offset=${offset}` : "";
-      url += filterCollections ? `&nftAddress=${filterCollections}` : "";
+      const query = `
+      {
+        nftaddresses(first: ${limit}, skip: ${offset} where: { hasNftsForSale: true }) {
+          id
+          collectionName
+          collectionSymbol
+          collectionType
+          floorPrice
+          NFTs(first: 1) {
+            tokenURI
+          }
+        }
+      }`;
 
-      const response = await this.get(url);
-      const data = await response.json();
+      const response = await this.getGraphQuery(query);
 
       const Collections = [];
-      for (const collection of data.data.marketplaceCollections) {
+      for (const collection of response.data.nftaddresses) {
         const CollectionImages = [];
-        if (collection.images) {
-          for (const image of collection.images) {
-            CollectionImages.push(fixIpfsImage(image));
+        if (collection.NFTs) {
+          for (const token of collection.NFTs) {
+            const metadataInfo = await fetch(token.tokenURI);
+            const metadata = await metadataInfo.json();
+            CollectionImages.push(fixIpfsImage(metadata.image));
           }
         }
         Collections.push({
-          address: collection.nftAddress,
-          name: collection.name,
+          address: collection.id,
+          name: collection.collectionName,
           images: CollectionImages,
-          isVerifiedCreator: collection.isVerified,
         });
       }
 
@@ -324,7 +338,8 @@ class DGMarketplace {
       );
 
       const { domainData, domainType } = getDomainData(
-        CONTRACT_ADDRESS,
+        this.contractAddress,
+        this.contractAddress,
         userAddress
       );
 
@@ -355,7 +370,7 @@ class DGMarketplace {
         transactionData: {
           from: userAddress,
           params: [
-            CONTRACT_ADDRESS,
+            this.contractAddress,
             getExecuteMetaTransactionData(
               userAddress,
               userSignature,
@@ -365,7 +380,7 @@ class DGMarketplace {
         },
       });
 
-      const response = await this.post(this.gasServer_url, serverPayload);
+      const response = await this.post(this.gasServerUrl, serverPayload);
 
       const data = await response.json();
 
@@ -386,7 +401,7 @@ class DGMarketplace {
         tokenId,
       };
       const response = await this.post(
-        `${this.backend_url}/marketplace/listings/market-validate-published-nft`,
+        `${this.apiUrl}/marketplace/listings/market-validate-published-nft`,
         JSON.stringify(body)
       );
 
@@ -412,7 +427,8 @@ class DGMarketplace {
       );
 
       const { domainData, domainType } = getDomainData(
-        CONTRACT_ADDRESS,
+        this.contractAddress,
+        this.contractAddress,
         userAddress
       );
 
@@ -443,7 +459,7 @@ class DGMarketplace {
         transactionData: {
           from: userAddress,
           params: [
-            CONTRACT_ADDRESS,
+            this.contractAddress,
             getExecuteMetaTransactionData(
               userAddress,
               userSignature,
@@ -453,7 +469,7 @@ class DGMarketplace {
         },
       });
 
-      const response = await this.post(this.gasServer_url, serverPayload);
+      const response = await this.post(this.gasServerUrl, serverPayload);
 
       const data = await response.json();
 
@@ -488,7 +504,8 @@ class DGMarketplace {
       );
 
       const { domainData, domainType } = getDomainData(
-        CONTRACT_ADDRESS,
+        this.contractAddress,
+        this.contractAddress,
         userAddress
       );
 
@@ -521,7 +538,7 @@ class DGMarketplace {
         transactionData: {
           from: userAddress,
           params: [
-            CONTRACT_ADDRESS,
+            this.contractAddress,
             getExecuteMetaTransactionData(
               userAddress,
               metamaskSignature,
@@ -531,7 +548,7 @@ class DGMarketplace {
         },
       });
 
-      const response = await this.post(this.gasServer_url, serverPayload);
+      const response = await this.post(this.gasServerUrl, serverPayload);
 
       const data = await response.json();
 
@@ -548,11 +565,15 @@ class DGMarketplace {
   async approveContractIce(userWallet: string) {
     try {
       const approveHex = await this.iceContract.populateTransaction.approve(
-        CONTRACT_ADDRESS,
+        this.contractAddress,
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
       );
 
-      const { iceDomainData, domainType } = getDomainData(ICE_ADDRESS, "");
+      const { iceDomainData, domainType } = getDomainData(
+        this.contractAddress,
+        ICE_ADDRESS,
+        ""
+      );
 
       const nonce = await this.iceContract.getNonce(userWallet);
 
@@ -591,7 +612,7 @@ class DGMarketplace {
         },
       });
 
-      const response = await this.post(this.gasServer_url, serverPayload);
+      const response = await this.post(this.gasServerUrl, serverPayload);
 
       const data = await response.json();
 
@@ -657,7 +678,7 @@ class DGMarketplace {
   }
 
   async get(url: string) {
-    return fetch(`${this.backend_url}${url}`, {
+    return fetch(`${this.apiUrl}${url}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -672,6 +693,26 @@ class DGMarketplace {
       },
       body,
     });
+  }
+
+  async getGraphQuery(graphqlQuery: string) {
+    try {
+      const response = await fetch(this.theGraphUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query: graphqlQuery }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async requestUserSignature(userWallet: string, dataToSign: string) {

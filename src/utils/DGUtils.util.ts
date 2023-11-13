@@ -1,4 +1,4 @@
-import { CONTRACT_ADDRESS, ICE_ADDRESS } from "../constants";
+import { ICE_ADDRESS } from "../constants";
 
 const EXECUTE_META_TRANSACTION_FUNCTION_SELECTOR = "0c53c51c";
 
@@ -50,11 +50,15 @@ function padEnd(src: string, length: number) {
   return src;
 }
 
-export function getDomainData(salt: any, address: string) {
+export function getDomainData(
+  contractAddress: string,
+  salt: any,
+  address: string
+) {
   const domainData = {
     name: "DGMarketplace",
     version: "v1.0",
-    verifyingContract: CONTRACT_ADDRESS,
+    verifyingContract: contractAddress,
     chainId: 1,
   };
 
