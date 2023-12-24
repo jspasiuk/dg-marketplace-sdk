@@ -1,6 +1,6 @@
 {
   "name": "dg-marketplace-sdk",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Decentral Games ICE Marketplace SDK",
   "main": "./dist/index.js",
   "scripts": {

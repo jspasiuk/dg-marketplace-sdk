@@ -187,57 +187,71 @@ var DGMarketplace = /** @class */ (function () {
         });
     };
     DGMarketplace.prototype.getCollections = function (_a) {
-        var _b = _a.limit, limit = _b === void 0 ? 100 : _b, _c = _a.offset, offset = _c === void 0 ? 0 : _c;
+        var _b = _a.limit, limit = _b === void 0 ? 100 : _b, _c = _a.offset, offset = _c === void 0 ? 0 : _c, _d = _a.orderBy, orderBy = _d === void 0 ? null : _d, _e = _a.filter, filter = _e === void 0 ? null : _e;
         return __awaiter(this, void 0, void 0, function () {
-            var query, response, Collections, _i, _d, collection, CollectionImages, _e, _f, token, metadataInfo, metadata, error_3;
-            return __generator(this, function (_g) {
-                switch (_g.label) {
+            var orderByQuery, filterQuery, query, response, Collections, _i, _f, collection, CollectionImages, _g, _h, token, tokenUri, isIpfsUrl, urlParts, ipfsHash, metadataInfo, metadata, error_3;
+            return __generator(this, function (_j) {
+                switch (_j.label) {
                     case 0:
                         this.validateConnection();
-                        _g.label = 1;
+                        _j.label = 1;
                     case 1:
-                        _g.trys.push([1, 11, , 12]);
-                        query = "\n      {\n        nftaddresses(first: ".concat(limit, ", skip: ").concat(offset, " where: { hasNftsForSale: true }) {\n          id\n          collectionName\n          collectionSymbol\n          collectionType\n          floorPrice\n          NFTs(first: 1) {\n            tokenURI\n          }\n        }\n      }");
+                        _j.trys.push([1, 11, , 12]);
+                        orderByQuery = orderBy ? "orderBy: ".concat(orderBy) : "";
+                        filterQuery = filter
+                            ? "where: { ".concat(filter, ", hasNftsForSale: true }")
+                            : "where: { hasNftsForSale: true }";
+                        query = "\n      {\n        nftaddresses(first: ".concat(limit, ", skip: ").concat(offset, " ").concat(orderByQuery, " ").concat(filterQuery, ") {\n          id\n          collectionName\n          collectionSymbol\n          collectionType\n          floorPrice\n          NFTs(first: 1) {\n            tokenURI\n          }\n        }\n      }");
                         return [4 /*yield*/, this.getGraphQuery(query)];
                     case 2:
-                        response = _g.sent();
+                        response = _j.sent();
                         Collections = [];
-                        _i = 0, _d = response.data.nftaddresses;
-                        _g.label = 3;
+                        _i = 0, _f = response.data.nftaddresses;
+                        _j.label = 3;
                     case 3:
-                        if (!(_i < _d.length)) return [3 /*break*/, 10];
-                        collection = _d[_i];
+                        if (!(_i < _f.length)) return [3 /*break*/, 10];
+                        collection = _f[_i];
                         CollectionImages = [];
                         if (!collection.NFTs) return [3 /*break*/, 8];
-                        _e = 0, _f = collection.NFTs;
-                        _g.label = 4;
+                        _g = 0, _h = collection.NFTs;
+                        _j.label = 4;
                     case 4:
-                        if (!(_e < _f.length)) return [3 /*break*/, 8];
-                        token = _f[_e];
-                        return [4 /*yield*/, fetch(token.tokenURI)];
+                        if (!(_g < _h.length)) return [3 /*break*/, 8];
+                        token = _h[_g];
+                        tokenUri = token.tokenURI;
+                        isIpfsUrl = token.tokenURI.startsWith("https://ipfs.io");
+                        if (isIpfsUrl) {
+                            urlParts = tokenUri.split("/");
+                            ipfsHash = urlParts[urlParts.length - 1];
+                            tokenUri = "".concat(constants_1.IPFS_PUBLIC_URL).concat(ipfsHash);
+                        }
+                        return [4 /*yield*/, fetch(tokenUri)];
                     case 5:
-                        metadataInfo = _g.sent();
+                        metadataInfo = _j.sent();
                         return [4 /*yield*/, metadataInfo.json()];
                     case 6:
-                        metadata = _g.sent();
+                        metadata = _j.sent();
                         CollectionImages.push((0, DGUtils_util_1.fixIpfsImage)(metadata.image));
-                        _g.label = 7;
+                        _j.label = 7;
                     case 7:
-                        _e++;
+                        _g++;
                         return [3 /*break*/, 4];
                     case 8:
                         Collections.push({
                             address: collection.id,
                             name: collection.collectionName,
+                            symbol: collection.collectionSymbol,
+                            floorPrice: collection.floorPrice,
+                            type: collection.collectionType,
                             images: CollectionImages,
                         });
-                        _g.label = 9;
+                        _j.label = 9;
                     case 9:
                         _i++;
                         return [3 /*break*/, 3];
                     case 10: return [2 /*return*/, Collections];
                     case 11:
-                        error_3 = _g.sent();
+                        error_3 = _j.sent();
                         throw error_3;
                     case 12: return [2 /*return*/];
                 }

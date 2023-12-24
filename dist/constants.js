@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ABI_20 = exports.ERC721CollectionV2 = exports.CONTRACT_ABI = exports.ICE_ADDRESS = exports.CONTRACT_ADDRESS = void 0;
+exports.ABI_20 = exports.ERC721CollectionV2 = exports.CONTRACT_ABI = exports.IPFS_PUBLIC_URL = exports.ICE_ADDRESS = exports.CONTRACT_ADDRESS = void 0;
 exports.CONTRACT_ADDRESS = "0x2D6d77D4D7CBF9be50244B52f9bdF87FaD1B3Ad0";
 exports.ICE_ADDRESS = "0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c";
+exports.IPFS_PUBLIC_URL = "https://cloudflare-ipfs.com/ipfs/";
 exports.CONTRACT_ABI = [
     {
         anonymous: false,

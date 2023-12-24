@@ -11,6 +11,7 @@ import {
   ERC721CollectionV2,
   ICE_ADDRESS,
   ABI_20,
+  IPFS_PUBLIC_URL,
 } from "../constants";
 class DGMarketplace {
   apiUrl: string = "";
@@ -150,15 +151,24 @@ class DGMarketplace {
   async getCollections({
     limit = 100,
     offset = 0,
+    orderBy = null,
+    filter = null,
   }: {
     limit: number;
     offset: number;
+    orderBy: string | null;
+    filter: string | null;
   }) {
     this.validateConnection();
     try {
+      const orderByQuery = orderBy ? `orderBy: ${orderBy}` : "";
+      const filterQuery = filter
+        ? `where: { ${filter}, hasNftsForSale: true }`
+        : `where: { hasNftsForSale: true }`;
+
       const query = `
       {
-        nftaddresses(first: ${limit}, skip: ${offset} where: { hasNftsForSale: true }) {
+        nftaddresses(first: ${limit}, skip: ${offset} ${orderByQuery} ${filterQuery}) {
           id
           collectionName
           collectionSymbol
@@ -177,7 +187,15 @@ class DGMarketplace {
         const CollectionImages = [];
         if (collection.NFTs) {
           for (const token of collection.NFTs) {
-            const metadataInfo = await fetch(token.tokenURI);
+            let tokenUri = token.tokenURI;
+            const isIpfsUrl = token.tokenURI.startsWith("https://ipfs.io");
+            if (isIpfsUrl) {
+              const urlParts = tokenUri.split("/");
+              const ipfsHash = urlParts[urlParts.length - 1];
+              tokenUri = `${IPFS_PUBLIC_URL}${ipfsHash}`;
+            }
+
+            const metadataInfo = await fetch(tokenUri);
             const metadata = await metadataInfo.json();
             CollectionImages.push(fixIpfsImage(metadata.image));
           }
@@ -185,6 +203,9 @@ class DGMarketplace {
         Collections.push({
           address: collection.id,
           name: collection.collectionName,
+          symbol: collection.collectionSymbol,
+          floorPrice: collection.floorPrice,
+          type: collection.collectionType,
           images: CollectionImages,
         });
       }

@@ -42,12 +42,17 @@ declare class DGMarketplace {
         image: string;
         price: any;
     }[]>;
-    getCollections({ limit, offset, }: {
+    getCollections({ limit, offset, orderBy, filter, }: {
         limit: number;
         offset: number;
+        orderBy: string | null;
+        filter: string | null;
     }): Promise<{
         address: any;
         name: any;
+        symbol: any;
+        floorPrice: any;
+        type: any;
         images: string[];
     }[]>;
     getGroups(collectionAddress: string, order?: string, limit?: number, offset?: number, name?: string, sellerAddress?: string): Promise<{
