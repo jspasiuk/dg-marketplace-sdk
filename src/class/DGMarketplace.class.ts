@@ -161,7 +161,9 @@ class DGMarketplace {
   }) {
     this.validateConnection();
     try {
-      const orderByQuery = orderBy ? `orderBy: ${orderBy}` : "";
+      const orderByQuery = orderBy
+        ? `orderBy: ${orderBy},orderDirection: desc`
+        : "";
       const filterQuery = filter
         ? `where: { ${filter}, hasNftsForSale: true }`
         : `where: { hasNftsForSale: true }`;
@@ -173,7 +175,10 @@ class DGMarketplace {
           collectionName
           collectionSymbol
           collectionType
+          profilePicture
+          profilePortrait
           floorPrice
+          verified
           NFTs(first: 1) {
             tokenURI
           }
@@ -184,30 +189,34 @@ class DGMarketplace {
 
       const Collections = [];
       for (const collection of response.data.nftaddresses) {
-        const CollectionImages = [];
-        if (collection.NFTs) {
-          for (const token of collection.NFTs) {
-            let tokenUri = token.tokenURI;
-            const isIpfsUrl = token.tokenURI.startsWith("https://ipfs.io");
-            if (isIpfsUrl) {
-              const urlParts = tokenUri.split("/");
-              const ipfsHash = urlParts[urlParts.length - 1];
-              tokenUri = `${IPFS_PUBLIC_URL}${ipfsHash}`;
+        try {
+          const CollectionImages = [];
+          if (collection.NFTs) {
+            for (const token of collection.NFTs) {
+              const tokenUri = this.switchIpfsUri(token.tokenURI);
+              const metadataInfo = await fetch(tokenUri);
+              const metadata = await metadataInfo.json();
+              CollectionImages.push(this.switchIpfsUri(metadata.image));
             }
-
-            const metadataInfo = await fetch(tokenUri);
-            const metadata = await metadataInfo.json();
-            CollectionImages.push(fixIpfsImage(metadata.image));
           }
+          Collections.push({
+            address: collection.id,
+            name: collection.collectionName,
+            symbol: collection.collectionSymbol,
+            floorPrice: collection.floorPrice,
+            type: collection.collectionType,
+            images: CollectionImages,
+            verified: collection.verified,
+            profilePicture: collection.profilePicture
+              ? this.switchIpfsUri(collection.profilePicture)
+              : null,
+            profilePortrait: collection.profilePortrait
+              ? this.switchIpfsUri(collection.profilePortrait)
+              : null,
+          });
+        } catch (error) {
+          console.error(error);
         }
-        Collections.push({
-          address: collection.id,
-          name: collection.collectionName,
-          symbol: collection.collectionSymbol,
-          floorPrice: collection.floorPrice,
-          type: collection.collectionType,
-          images: CollectionImages,
-        });
       }
 
       return Collections;
@@ -215,6 +224,32 @@ class DGMarketplace {
       throw error;
     }
   }
+
+  switchIpfsUri = (url: string) => {
+    const ipfsRegex =
+      /^(?:https?:\/\/)?(?:(?:\w+\.)?ipfs\.(?:dweb\.link|(?:\w+\.)?[a-zA-Z]+)|localhost)(?::\d{2,5})?\/(?:ipfs\/)?(Qm[a-zA-Z0-9]{44})/;
+    const nativeIpfsRegex = /^ipfs:\/\/(Qm[a-zA-Z0-9]{44})/;
+    const nativeIpfsIpfsRegex = /^ipfs:\/\/ipfs\/(Qm[a-zA-Z0-9]{44})(\/.+)?/;
+
+    const ipfsMatch = url.match(ipfsRegex);
+    const nativeIpfsMatch = url.match(nativeIpfsRegex);
+    const nativeIpfsIpfsMatch = url.match(nativeIpfsIpfsRegex);
+    let cid = null;
+
+    if (ipfsMatch) {
+      cid = ipfsMatch[1];
+    } else if (nativeIpfsMatch) {
+      cid = nativeIpfsMatch[1];
+    } else if (nativeIpfsIpfsMatch) {
+      nativeIpfsIpfsMatch.shift();
+      cid = nativeIpfsIpfsMatch.join("");
+    }
+    if (cid) {
+      return `${IPFS_PUBLIC_URL}${cid}`;
+    } else {
+      return url;
+    }
+  };
 
   async getGroups(
     collectionAddress: string,
@@ -242,7 +277,7 @@ class DGMarketplace {
 
       const Groups = [];
       for (const group of data.data.marketplaceListings) {
-        const image = fixIpfsImage(group.imageUrl);
+        const image = this.switchIpfsUri(group.imageUrl);
 
         const price = group.price;
 
@@ -679,10 +714,13 @@ class DGMarketplace {
 
   async getTokenMetadata(collectionAddress: string, tokenId: string) {
     try {
+      const provider = new ethers.providers.JsonRpcProvider(
+        this.polygonRpcProvider
+      );
       const contract = new ethers.Contract(
         collectionAddress,
         ERC721CollectionV2,
-        this.signer
+        provider
       );
 
       const tokenUri = await contract.tokenURI(tokenId);

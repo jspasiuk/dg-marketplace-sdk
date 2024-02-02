@@ -54,7 +54,11 @@ declare class DGMarketplace {
         floorPrice: any;
         type: any;
         images: string[];
+        verified: any;
+        profilePicture: string | null;
+        profilePortrait: string | null;
     }[]>;
+    switchIpfsUri: (url: string) => string;
     getGroups(collectionAddress: string, order?: string, limit?: number, offset?: number, name?: string, sellerAddress?: string): Promise<{
         address: any;
         name: any;
