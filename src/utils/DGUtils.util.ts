@@ -2,16 +2,6 @@ import { ICE_ADDRESS } from "../constants";
 
 const EXECUTE_META_TRANSACTION_FUNCTION_SELECTOR = "0c53c51c";
 
-export const fixIpfsImage = (image: string) => {
-  if (!image) return "";
-  if (image.substr(0, 4) === "ipfs") {
-    image = image.replace("ipfs://", "");
-    image = image.replace("ipfs/", "");
-    image = image = "https://cloudflare-ipfs.com/ipfs/" + image;
-  }
-  return image;
-};
-
 export const metaTransactionType = [
   { name: "nonce", type: "uint256" },
   { name: "from", type: "address" },

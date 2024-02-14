@@ -1,4 +1,3 @@
-export declare const fixIpfsImage: (image: string) => string;
 export declare const metaTransactionType: {
     name: string;
     type: string;

@@ -1,19 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isUrl = exports.getExecuteMetaTransactionData = exports.normalizeVersion = exports.getDomainData = exports.to32Bytes = exports.getSalt = exports.metaTransactionType = exports.fixIpfsImage = void 0;
+exports.isUrl = exports.getExecuteMetaTransactionData = exports.normalizeVersion = exports.getDomainData = exports.to32Bytes = exports.getSalt = exports.metaTransactionType = void 0;
 var constants_1 = require("../constants");
 var EXECUTE_META_TRANSACTION_FUNCTION_SELECTOR = "0c53c51c";
-var fixIpfsImage = function (image) {
-    if (!image)
-        return "";
-    if (image.substr(0, 4) === "ipfs") {
-        image = image.replace("ipfs://", "");
-        image = image.replace("ipfs/", "");
-        image = image = "https://cloudflare-ipfs.com/ipfs/" + image;
-    }
-    return image;
-};
-exports.fixIpfsImage = fixIpfsImage;
 exports.metaTransactionType = [
     { name: "nonce", type: "uint256" },
     { name: "from", type: "address" },

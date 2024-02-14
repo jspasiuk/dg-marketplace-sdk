@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
 import {
-  fixIpfsImage,
   getDomainData,
   metaTransactionType,
   getExecuteMetaTransactionData,
@@ -130,7 +129,7 @@ class DGMarketplace {
 
       const Tokens = [];
       for (const token of data.data) {
-        const image = fixIpfsImage(token.imageUrl);
+        const image = this.switchIpfsUri(token.imageUrl);
         Tokens.push({
           tokenId: token.tokenId,
           address: token.nftAddress,
@@ -217,6 +216,53 @@ class DGMarketplace {
         } catch (error) {
           console.error(error);
         }
+      }
+
+      return Collections;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getCollectionsFromDG({
+    sellerAddress,
+    collectionName,
+    limit,
+    offset,
+    filterCollections,
+  }: {
+    sellerAddress: string;
+    collectionName: string;
+    limit?: number;
+    offset?: number;
+    filterCollections?: string;
+  }) {
+    this.validateConnection();
+    try {
+      let url = "/marketplace/collections?1=1";
+      url += sellerAddress ? `&sellerAddress=${sellerAddress}` : "";
+      url += collectionName ? `&name=${collectionName}` : "";
+      url += limit ? `&limit=${limit}` : "";
+      url += offset ? `&offset=${offset}` : "";
+      url += filterCollections ? `&nftAddress=${filterCollections}` : "";
+
+      const response = await this.get(url);
+      const data = await response.json();
+
+      const Collections = [];
+      for (const collection of data.data.marketplaceCollections) {
+        const CollectionImages = [];
+        if (collection.images) {
+          for (const image of collection.images) {
+            CollectionImages.push(this.switchIpfsUri(image));
+          }
+        }
+        Collections.push({
+          address: collection.nftAddress,
+          name: collection.name,
+          images: CollectionImages,
+          isVerifiedCreator: collection.isVerified,
+        });
       }
 
       return Collections;
@@ -322,7 +368,7 @@ class DGMarketplace {
 
       const Tokens = [];
       for (const token of data.data.marketplaceCollections) {
-        const image = fixIpfsImage(token.image);
+        const image = this.switchIpfsUri(token.image);
 
         const price = token.price;
 

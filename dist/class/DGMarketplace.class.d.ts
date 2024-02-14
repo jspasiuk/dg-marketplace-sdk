@@ -58,6 +58,18 @@ declare class DGMarketplace {
         profilePicture: string | null;
         profilePortrait: string | null;
     }[]>;
+    getCollectionsFromDG({ sellerAddress, collectionName, limit, offset, filterCollections, }: {
+        sellerAddress: string;
+        collectionName: string;
+        limit?: number;
+        offset?: number;
+        filterCollections?: string;
+    }): Promise<{
+        address: any;
+        name: any;
+        images: string[];
+        isVerifiedCreator: any;
+    }[]>;
     switchIpfsUri: (url: string) => string;
     getGroups(collectionAddress: string, order?: string, limit?: number, offset?: number, name?: string, sellerAddress?: string): Promise<{
         address: any;
