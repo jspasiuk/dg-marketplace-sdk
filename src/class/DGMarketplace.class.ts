@@ -8,7 +8,6 @@ import {
 import {
   CONTRACT_ABI,
   ERC721CollectionV2,
-  ICE_ADDRESS,
   ABI_20,
   IPFS_PUBLIC_URL,
 } from "../constants";
@@ -27,6 +26,7 @@ class DGMarketplace {
   walletProvider: any;
   walletProviderType: string = "";
   contractAddress: string = "";
+  iceAddress: string = "";
 
   constructor() {}
 
@@ -35,18 +35,21 @@ class DGMarketplace {
     gasServerUrl,
     polygonRpcProvider,
     contractAddress,
+    iceAddress,
     theGraphUrl,
   }: {
     apiUrl: string;
     gasServerUrl: string;
     polygonRpcProvider: string;
     contractAddress: string;
+    iceAddress: string;
     theGraphUrl: string;
   }) {
     this.apiUrl = apiUrl;
     this.gasServerUrl = gasServerUrl;
     this.polygonRpcProvider = polygonRpcProvider;
     this.contractAddress = contractAddress;
+    this.iceAddress = iceAddress;
     this.theGraphUrl = theGraphUrl;
 
     await this.getIceValue();
@@ -97,7 +100,7 @@ class DGMarketplace {
         signer
       );
 
-      const iceContract = new ethers.Contract(ICE_ADDRESS, ABI_20, signer);
+      const iceContract = new ethers.Contract(this.iceAddress, ABI_20, signer);
 
       this.polygonProvider = provider;
       this.iceContract = iceContract;
@@ -673,7 +676,7 @@ class DGMarketplace {
 
       const { iceDomainData, domainType } = getDomainData(
         this.contractAddress,
-        ICE_ADDRESS,
+        this.iceAddress,
         ""
       );
 
@@ -704,7 +707,7 @@ class DGMarketplace {
         transactionData: {
           from: userWallet,
           params: [
-            ICE_ADDRESS,
+            this.iceAddress,
             getExecuteMetaTransactionData(
               userWallet,
               userSignature,

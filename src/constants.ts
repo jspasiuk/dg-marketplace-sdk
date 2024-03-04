@@ -1,6 +1,4 @@
-export const CONTRACT_ADDRESS = "0x2D6d77D4D7CBF9be50244B52f9bdF87FaD1B3Ad0";
-export const ICE_ADDRESS = "0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c";
-export const IPFS_PUBLIC_URL = "https://cloudflare-ipfs.com/ipfs/"
+export const IPFS_PUBLIC_URL = "https://cloudflare-ipfs.com/ipfs/";
 
 export const CONTRACT_ABI = [
   {
