@@ -675,7 +675,7 @@ class DGMarketplace {
       );
 
       const { iceDomainData, domainType } = getDomainData(
-        this.contractAddress,
+        this.iceAddress,
         this.iceAddress,
         ""
       );

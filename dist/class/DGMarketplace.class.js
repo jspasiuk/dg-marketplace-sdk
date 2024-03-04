@@ -723,7 +723,7 @@ var DGMarketplace = /** @class */ (function () {
                         return [4 /*yield*/, this.iceContract.populateTransaction.approve(this.contractAddress, "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")];
                     case 1:
                         approveHex = _b.sent();
-                        _a = (0, DGUtils_util_1.getDomainData)(this.contractAddress, this.iceAddress, ""), iceDomainData = _a.iceDomainData, domainType = _a.domainType;
+                        _a = (0, DGUtils_util_1.getDomainData)(this.iceAddress, this.iceAddress, ""), iceDomainData = _a.iceDomainData, domainType = _a.domainType;
                         return [4 /*yield*/, this.iceContract.getNonce(userWallet)];
                     case 2:
                         nonce = _b.sent();
