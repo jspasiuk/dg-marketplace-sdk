@@ -1,5 +1,3 @@
-import { ICE_ADDRESS } from "../constants";
-
 const EXECUTE_META_TRANSACTION_FUNCTION_SELECTOR = "0c53c51c";
 
 export const metaTransactionType = [
@@ -55,7 +53,7 @@ export function getDomainData(
   const iceDomainData = {
     name: "IceToken",
     version: "v1.2",
-    verifyingContract: ICE_ADDRESS,
+    verifyingContract: contractAddress,
     chainId: 1,
   };
 

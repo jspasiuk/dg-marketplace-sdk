@@ -50,6 +50,7 @@ var DGMarketplace = /** @class */ (function () {
         this.userIceAllowance = 0;
         this.walletProviderType = "";
         this.contractAddress = "";
+        this.iceAddress = "";
         this.switchIpfsUri = function (url) {
             var ipfsRegex = /^(?:https?:\/\/)?(?:(?:\w+\.)?ipfs\.(?:dweb\.link|(?:\w+\.)?[a-zA-Z]+)|localhost)(?::\d{2,5})?\/(?:ipfs\/)?(Qm[a-zA-Z0-9]{44})/;
             var nativeIpfsRegex = /^ipfs:\/\/(Qm[a-zA-Z0-9]{44})/;
@@ -77,7 +78,7 @@ var DGMarketplace = /** @class */ (function () {
         };
     }
     DGMarketplace.prototype.init = function (_a) {
-        var apiUrl = _a.apiUrl, gasServerUrl = _a.gasServerUrl, polygonRpcProvider = _a.polygonRpcProvider, contractAddress = _a.contractAddress, theGraphUrl = _a.theGraphUrl;
+        var apiUrl = _a.apiUrl, gasServerUrl = _a.gasServerUrl, polygonRpcProvider = _a.polygonRpcProvider, contractAddress = _a.contractAddress, iceAddress = _a.iceAddress, theGraphUrl = _a.theGraphUrl;
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
@@ -86,6 +87,7 @@ var DGMarketplace = /** @class */ (function () {
                         this.gasServerUrl = gasServerUrl;
                         this.polygonRpcProvider = polygonRpcProvider;
                         this.contractAddress = contractAddress;
+                        this.iceAddress = iceAddress;
                         this.theGraphUrl = theGraphUrl;
                         return [4 /*yield*/, this.getIceValue()];
                     case 1:
@@ -137,7 +139,7 @@ var DGMarketplace = /** @class */ (function () {
             var provider = new ethers_1.ethers.providers.JsonRpcProvider(this.polygonRpcProvider);
             var signer = provider.getSigner(userAddress);
             var contract = new ethers_1.ethers.Contract(this.contractAddress, constants_1.CONTRACT_ABI, signer);
-            var iceContract = new ethers_1.ethers.Contract(constants_1.ICE_ADDRESS, constants_1.ABI_20, signer);
+            var iceContract = new ethers_1.ethers.Contract(this.iceAddress, constants_1.ABI_20, signer);
             this.polygonProvider = provider;
             this.iceContract = iceContract;
             this.contract = contract;
@@ -721,7 +723,7 @@ var DGMarketplace = /** @class */ (function () {
                         return [4 /*yield*/, this.iceContract.populateTransaction.approve(this.contractAddress, "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")];
                     case 1:
                         approveHex = _b.sent();
-                        _a = (0, DGUtils_util_1.getDomainData)(this.contractAddress, constants_1.ICE_ADDRESS, ""), iceDomainData = _a.iceDomainData, domainType = _a.domainType;
+                        _a = (0, DGUtils_util_1.getDomainData)(this.contractAddress, this.iceAddress, ""), iceDomainData = _a.iceDomainData, domainType = _a.domainType;
                         return [4 /*yield*/, this.iceContract.getNonce(userWallet)];
                     case 2:
                         nonce = _b.sent();
@@ -746,7 +748,7 @@ var DGMarketplace = /** @class */ (function () {
                             transactionData: {
                                 from: userWallet,
                                 params: [
-                                    constants_1.ICE_ADDRESS,
+                                    this.iceAddress,
                                     (0, DGUtils_util_1.getExecuteMetaTransactionData)(userWallet, userSignature, approveHex.data),
                                 ],
                             },

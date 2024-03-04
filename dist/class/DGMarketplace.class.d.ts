@@ -14,12 +14,14 @@ declare class DGMarketplace {
     walletProvider: any;
     walletProviderType: string;
     contractAddress: string;
+    iceAddress: string;
     constructor();
-    init({ apiUrl, gasServerUrl, polygonRpcProvider, contractAddress, theGraphUrl, }: {
+    init({ apiUrl, gasServerUrl, polygonRpcProvider, contractAddress, iceAddress, theGraphUrl, }: {
         apiUrl: string;
         gasServerUrl: string;
         polygonRpcProvider: string;
         contractAddress: string;
+        iceAddress: string;
         theGraphUrl: string;
     }): Promise<void>;
     initProvider(walletProvider: any, walletProviderType: "metamask" | "web3auth"): Promise<void>;

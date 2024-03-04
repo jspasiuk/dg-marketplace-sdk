@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isUrl = exports.getExecuteMetaTransactionData = exports.normalizeVersion = exports.getDomainData = exports.to32Bytes = exports.getSalt = exports.metaTransactionType = void 0;
-var constants_1 = require("../constants");
 var EXECUTE_META_TRANSACTION_FUNCTION_SELECTOR = "0c53c51c";
 exports.metaTransactionType = [
     { name: "nonce", type: "uint256" },
@@ -53,7 +52,7 @@ function getDomainData(contractAddress, salt, address) {
     var iceDomainData = {
         name: "IceToken",
         version: "v1.2",
-        verifyingContract: constants_1.ICE_ADDRESS,
+        verifyingContract: contractAddress,
         chainId: 1,
     };
     var DgDomainData = {
