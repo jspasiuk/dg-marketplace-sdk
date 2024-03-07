@@ -15,7 +15,7 @@ export declare function getDomainData(contractAddress: string, salt: any, addres
         name: string;
         version: string;
         verifyingContract: string;
-        chainId: number;
+        salt: string;
     };
     domainType: {
         name: string;

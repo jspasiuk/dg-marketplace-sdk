@@ -50,10 +50,10 @@ function getDomainData(contractAddress, salt, address) {
         chainId: 1,
     };
     var iceDomainData = {
-        name: "IceToken",
-        version: "v1.2",
+        name: "Bag(PoS)",
+        version: "1",
         verifyingContract: contractAddress,
-        chainId: 1,
+        salt: "0x0000000000000000000000000000000000000000000000000000000000000089",
     };
     var DgDomainData = {
         version: "2",
@@ -70,8 +70,8 @@ function getDomainData(contractAddress, salt, address) {
     var domainType = [
         { name: "name", type: "string" },
         { name: "version", type: "string" },
-        { name: "chainId", type: "uint256" },
         { name: "verifyingContract", type: "address" },
+        { name: "salt", type: "bytes32" },
     ];
     return { domainData: domainData, iceDomainData: iceDomainData, domainType: domainType, DgDomainData: DgDomainData, DgDomainType: DgDomainType };
 }
