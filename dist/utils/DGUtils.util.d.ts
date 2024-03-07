@@ -17,6 +17,10 @@ export declare function getDomainData(contractAddress: string, salt: any, addres
         verifyingContract: string;
         salt: string;
     };
+    ICEdomainType: {
+        name: string;
+        type: string;
+    }[];
     domainType: {
         name: string;
         type: string;

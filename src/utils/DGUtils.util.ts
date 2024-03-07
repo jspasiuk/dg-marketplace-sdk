@@ -74,10 +74,24 @@ export function getDomainData(
   const domainType = [
     { name: "name", type: "string" },
     { name: "version", type: "string" },
+    { name: "chainId", type: "uint256" },
+    { name: "verifyingContract", type: "address" },
+  ];
+
+  const ICEdomainType = [
+    { name: "name", type: "string" },
+    { name: "version", type: "string" },
     { name: "verifyingContract", type: "address" },
     { name: "salt", type: "bytes32" },
   ];
-  return { domainData, iceDomainData, domainType, DgDomainData, DgDomainType };
+  return {
+    domainData,
+    iceDomainData,
+    ICEdomainType,
+    domainType,
+    DgDomainData,
+    DgDomainType,
+  };
 }
 
 export function normalizeVersion(version: string) {

@@ -715,7 +715,7 @@ var DGMarketplace = /** @class */ (function () {
     };
     DGMarketplace.prototype.approveContractIce = function (userWallet) {
         return __awaiter(this, void 0, void 0, function () {
-            var approveHex, _a, iceDomainData, domainType, nonce, message, dataToSign, userSignature, serverPayload, response, data, error_13;
+            var approveHex, _a, iceDomainData, ICEdomainType, nonce, message, dataToSign, userSignature, serverPayload, response, data, error_13;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -723,7 +723,7 @@ var DGMarketplace = /** @class */ (function () {
                         return [4 /*yield*/, this.iceContract.populateTransaction.approve(this.contractAddress, "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")];
                     case 1:
                         approveHex = _b.sent();
-                        _a = (0, DGUtils_util_1.getDomainData)(this.iceAddress, this.iceAddress, ""), iceDomainData = _a.iceDomainData, domainType = _a.domainType;
+                        _a = (0, DGUtils_util_1.getDomainData)(this.iceAddress, this.iceAddress, ""), iceDomainData = _a.iceDomainData, ICEdomainType = _a.ICEdomainType;
                         return [4 /*yield*/, this.iceContract.getNonce(userWallet)];
                     case 2:
                         nonce = _b.sent();
@@ -734,7 +734,7 @@ var DGMarketplace = /** @class */ (function () {
                         };
                         dataToSign = JSON.stringify({
                             types: {
-                                EIP712Domain: domainType,
+                                EIP712Domain: ICEdomainType,
                                 MetaTransaction: DGUtils_util_1.metaTransactionType,
                             },
                             domain: iceDomainData,

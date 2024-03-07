@@ -70,10 +70,23 @@ function getDomainData(contractAddress, salt, address) {
     var domainType = [
         { name: "name", type: "string" },
         { name: "version", type: "string" },
+        { name: "chainId", type: "uint256" },
+        { name: "verifyingContract", type: "address" },
+    ];
+    var ICEdomainType = [
+        { name: "name", type: "string" },
+        { name: "version", type: "string" },
         { name: "verifyingContract", type: "address" },
         { name: "salt", type: "bytes32" },
     ];
-    return { domainData: domainData, iceDomainData: iceDomainData, domainType: domainType, DgDomainData: DgDomainData, DgDomainType: DgDomainType };
+    return {
+        domainData: domainData,
+        iceDomainData: iceDomainData,
+        ICEdomainType: ICEdomainType,
+        domainType: domainType,
+        DgDomainData: DgDomainData,
+        DgDomainType: DgDomainType,
+    };
 }
 exports.getDomainData = getDomainData;
 function normalizeVersion(version) {

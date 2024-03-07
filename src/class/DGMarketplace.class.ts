@@ -674,7 +674,7 @@ class DGMarketplace {
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
       );
 
-      const { iceDomainData, domainType } = getDomainData(
+      const { iceDomainData, ICEdomainType } = getDomainData(
         this.iceAddress,
         this.iceAddress,
         ""
@@ -690,7 +690,7 @@ class DGMarketplace {
 
       const dataToSign = JSON.stringify({
         types: {
-          EIP712Domain: domainType,
+          EIP712Domain: ICEdomainType,
           MetaTransaction: metaTransactionType,
         },
         domain: iceDomainData,
