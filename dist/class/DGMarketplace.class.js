@@ -831,7 +831,7 @@ var DGMarketplace = /** @class */ (function () {
     };
     DGMarketplace.prototype.getTokenMetadata = function (collectionAddress, tokenId) {
         return __awaiter(this, void 0, void 0, function () {
-            var provider, contract, tokenUri, response, data, error_16;
+            var provider, contract, tokenUri, fixedUri, response, data, error_16;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -842,7 +842,8 @@ var DGMarketplace = /** @class */ (function () {
                     case 1:
                         tokenUri = _a.sent();
                         if (!(0, DGUtils_util_1.isUrl)(tokenUri)) return [3 /*break*/, 4];
-                        return [4 /*yield*/, fetch(tokenUri)];
+                        fixedUri = this.switchIpfsUri(tokenUri);
+                        return [4 /*yield*/, fetch(fixedUri)];
                     case 2:
                         response = _a.sent();
                         return [4 /*yield*/, response.json()];

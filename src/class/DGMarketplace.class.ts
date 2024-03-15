@@ -774,7 +774,8 @@ class DGMarketplace {
 
       const tokenUri = await contract.tokenURI(tokenId);
       if (isUrl(tokenUri)) {
-        const response = await fetch(tokenUri);
+        const fixedUri = this.switchIpfsUri(tokenUri);
+        const response = await fetch(fixedUri);
         const data = await response.json();
         return data;
       } else {
