@@ -551,28 +551,20 @@ var DGMarketplace = /** @class */ (function () {
         });
     };
     DGMarketplace.prototype.validateListing = function (tokenAddress, tokenId) {
-        var _a;
         return __awaiter(this, void 0, void 0, function () {
-            var body, response, data, error_10;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var isValid, error_10;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
-                        _b.trys.push([0, 3, , 4]);
-                        body = {
-                            nftAddress: tokenAddress,
-                            tokenId: tokenId,
-                        };
-                        return [4 /*yield*/, this.post("".concat(this.apiUrl, "/marketplace/listings/market-validate-published-nft"), JSON.stringify(body))];
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.contract.getOrderActive(tokenAddress, tokenId)];
                     case 1:
-                        response = _b.sent();
-                        return [4 /*yield*/, response.json()];
+                        isValid = _a.sent();
+                        return [2 /*return*/, isValid];
                     case 2:
-                        data = _b.sent();
-                        return [2 /*return*/, (_a = data === null || data === void 0 ? void 0 : data.data) === null || _a === void 0 ? void 0 : _a.isValid];
-                    case 3:
-                        error_10 = _b.sent();
+                        error_10 = _a.sent();
                         throw error_10;
-                    case 4: return [2 /*return*/];
+                    case 3: return [2 /*return*/];
                 }
             });
         });

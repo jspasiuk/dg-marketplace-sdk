@@ -978,6 +978,30 @@ exports.CONTRACT_ABI = [
         stateMutability: "payable",
         type: "receive",
     },
+    {
+        inputs: [
+            {
+                internalType: "address",
+                name: "_nftAddress",
+                type: "address",
+            },
+            {
+                internalType: "uint256",
+                name: "_tokenId",
+                type: "uint256",
+            },
+        ],
+        name: "getOrderActive",
+        outputs: [
+            {
+                internalType: "bool",
+                name: "",
+                type: "bool",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
 ];
 exports.ERC721CollectionV2 = [
     {

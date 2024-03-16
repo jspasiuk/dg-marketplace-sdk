@@ -501,6 +501,10 @@ class DGMarketplace {
 
   async validateListing(tokenAddress: string, tokenId: string) {
     try {
+      const isValid = await this.contract.getOrderActive(tokenAddress, tokenId);
+      return isValid;
+
+      /*
       const body = {
         nftAddress: tokenAddress,
         tokenId,
@@ -513,6 +517,7 @@ class DGMarketplace {
       const data = await response.json();
 
       return data?.data?.isValid;
+      */
     } catch (error) {
       throw error;
     }
