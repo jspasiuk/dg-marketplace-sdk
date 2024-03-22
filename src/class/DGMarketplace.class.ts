@@ -181,7 +181,7 @@ class DGMarketplace {
           profilePortrait
           floorPrice
           verified
-          NFTs(first: 1) {
+          NFTs(first: 1, where: {forSale: true}) {
             tokenURI
           }
         }
@@ -189,16 +189,33 @@ class DGMarketplace {
 
       const response = await this.getGraphQuery(query);
 
+      const queryResponse = response.data.nftaddresses;
+
+      const responseWithProxy = await this.proxyGraphCollections(
+        JSON.stringify(queryResponse)
+      );
+
       const Collections = [];
-      for (const collection of response.data.nftaddresses) {
+      for (const collection of responseWithProxy) {
         try {
           const CollectionImages = [];
           if (collection.NFTs) {
             for (const token of collection.NFTs) {
               const tokenUri = this.switchIpfsUri(token.tokenURI);
-              const metadataInfo = await fetch(tokenUri);
-              const metadata = await metadataInfo.json();
-              CollectionImages.push(this.switchIpfsUri(metadata.image));
+              let metadataInfo;
+              let metadata;
+              if (token.image) {
+                CollectionImages.push(token.image);
+              } else {
+                if (token.metadata) {
+                  metadata = JSON.parse(token.metadata);
+                  CollectionImages.push(metadata.image);
+                } else {
+                  metadataInfo = await fetch(tokenUri);
+                  metadata = await metadataInfo.json();
+                  CollectionImages.push(this.switchIpfsUri(metadata.image));
+                }
+              }
             }
           }
           Collections.push({
@@ -224,6 +241,19 @@ class DGMarketplace {
       return Collections;
     } catch (error) {
       throw error;
+    }
+  }
+
+  async proxyGraphCollections(queryResult: string) {
+    try {
+      const response = await this.post(
+        this.apiUrl + `/nft-service`,
+        queryResult
+      );
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(error);
     }
   }
 

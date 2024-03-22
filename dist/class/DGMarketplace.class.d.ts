@@ -55,11 +55,12 @@ declare class DGMarketplace {
         symbol: any;
         floorPrice: any;
         type: any;
-        images: string[];
+        images: any[];
         verified: any;
         profilePicture: string | null;
         profilePortrait: string | null;
     }[]>;
+    proxyGraphCollections(queryResult: string): Promise<any>;
     getCollectionsFromDG({ sellerAddress, collectionName, limit, offset, filterCollections, }: {
         sellerAddress: string;
         collectionName: string;
