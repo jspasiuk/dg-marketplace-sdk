@@ -150,6 +150,138 @@ class DGMarketplace {
     }
   }
 
+  async getAllCollectionsTogether() {
+    this.validateConnection();
+    try {
+      const query = `
+      {
+        allCollections: nftaddresses(first: 16, skip: 0, where: { hasNftsForSale: true }) {
+          id
+          collectionName
+          collectionSymbol
+          collectionType
+          profilePicture
+          profilePortrait
+          floorPrice
+          verified
+          NFTs(first: 1, where: {forSale: true}) {
+            tokenURI
+          }
+        }
+        highlightedCollections: nftaddresses(first: 16, skip: 0, where: { highlighted: true, hasNftsForSale: true }) {
+          id
+          collectionName
+          collectionSymbol
+          collectionType
+          profilePicture
+          profilePortrait
+          floorPrice
+          verified
+          NFTs(first: 1, where: {forSale: true}) {
+            tokenURI
+          }
+        }
+        trendingCollections: nftaddresses(first: 16, skip: 0, orderBy: totalRevenue, orderDirection: desc, where: { hasNftsForSale: true }) {
+          id
+          collectionName
+          collectionSymbol
+          collectionType
+          profilePicture
+          profilePortrait
+          floorPrice
+          verified
+          NFTs(first: 1, where: {forSale: true}) {
+            tokenURI
+          }
+        }
+      }`;
+
+      const response = await this.getGraphQuery(query);
+
+      const queryResponse = [];
+
+      queryResponse.push(response.data);
+
+      const responseWithProxy = await this.proxyGraphCollections(
+        JSON.stringify(queryResponse)
+      );
+
+      const Collections: any = {
+        allCollections: [],
+        highlightedCollections: [],
+        trendingCollections: [],
+      };
+
+      for (const collection of responseWithProxy) {
+        try {
+          Collections.allCollections = await this.cleanCollectionsData(
+            collection.allCollections
+          );
+          Collections.highlightedCollections = await this.cleanCollectionsData(
+            collection.highlightedCollections
+          );
+          Collections.trendingCollections = await this.cleanCollectionsData(
+            collection.trendingCollections
+          );
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      return Collections;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async cleanCollectionsData(collectionSet: any) {
+    const dumpArray: any = [];
+
+    for (const collection of collectionSet) {
+      try {
+        const CollectionImages = [];
+        if (collection.NFTs) {
+          for (const token of collection.NFTs) {
+            const tokenUri = this.switchIpfsUri(token.tokenURI);
+            let metadataInfo;
+            let metadata;
+            if (token.image) {
+              CollectionImages.push(token.image);
+            } else {
+              if (token.metadata) {
+                metadata = JSON.parse(token.metadata);
+                CollectionImages.push(metadata.image);
+              } else {
+                metadataInfo = await fetch(tokenUri);
+                metadata = await metadataInfo.json();
+                CollectionImages.push(this.switchIpfsUri(metadata.image));
+              }
+            }
+          }
+        }
+        dumpArray.push({
+          address: collection.id,
+          name: collection.collectionName,
+          symbol: collection.collectionSymbol,
+          floorPrice: collection.floorPrice,
+          type: collection.collectionType,
+          images: CollectionImages,
+          verified: collection.verified,
+          profilePicture: collection.profilePicture
+            ? this.switchIpfsUri(collection.profilePicture)
+            : null,
+          profilePortrait: collection.profilePortrait
+            ? this.switchIpfsUri(collection.profilePortrait)
+            : null,
+        });
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    return dumpArray;
+  }
+
   async getCollections({
     limit = 100,
     offset = 0,

@@ -44,6 +44,8 @@ declare class DGMarketplace {
         image: string;
         price: any;
     }[]>;
+    getAllCollectionsTogether(): Promise<any>;
+    cleanCollectionsData(collectionSet: any): Promise<any>;
     getCollections({ limit, offset, orderBy, filter, }: {
         limit: number;
         offset: number;
