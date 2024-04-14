@@ -103,9 +103,9 @@ declare class DGMarketplace {
         resourceId: any;
     }[]>;
     getPaymentLink(platform: string, buyerAddress: string, tokenAddress: string, tokenId: string, resourceId: string): Promise<any>;
-    buyItem(userAddress: string, tokenAddress: string, tokenId: string): Promise<any>;
+    buyItem(userAddress: string, tokenAddress: string, tokenId: string, price: string): Promise<any>;
     validateListing(tokenAddress: string, tokenId: string): Promise<any>;
-    sendAsGift(userAddress: string, giftAddress: string, tokenAddress: string, tokenId: string): Promise<any>;
+    sendAsGift(userAddress: string, giftAddress: string, tokenAddress: string, tokenId: string, price: string): Promise<any>;
     cancelPublishedItem(metamaskProvider: any, userAddress: string, tokenAddress: string, tokenIdArray: [string]): Promise<any>;
     approveContractIce(userWallet: string): Promise<any>;
     getTransactionStatus(txnHash: string): Promise<{

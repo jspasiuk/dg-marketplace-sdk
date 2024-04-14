@@ -656,9 +656,9 @@ var DGMarketplace = /** @class */ (function () {
             });
         });
     };
-    DGMarketplace.prototype.buyItem = function (userAddress, tokenAddress, tokenId) {
+    DGMarketplace.prototype.buyItem = function (userAddress, tokenAddress, tokenId, price) {
         return __awaiter(this, void 0, void 0, function () {
-            var isValid, approveHex, _a, domainData, domainType, nonce, message, dataToSign, userSignature, serverPayload, response, data, error_13;
+            var isValid, priceWei, approveHex, _a, domainData, domainType, nonce, message, dataToSign, userSignature, serverPayload, response, data, error_13;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -669,7 +669,8 @@ var DGMarketplace = /** @class */ (function () {
                         if (!isValid) {
                             throw new Error("Invalid listing");
                         }
-                        return [4 /*yield*/, this.contract.populateTransaction.buy(tokenAddress, [tokenId])];
+                        priceWei = ethers_1.ethers.utils.parseEther(price);
+                        return [4 /*yield*/, this.contract.populateTransaction.buy(tokenAddress, [tokenId], [priceWei])];
                     case 2:
                         approveHex = _b.sent();
                         _a = (0, DGUtils_util_1.getDomainData)(this.contractAddress, this.contractAddress, userAddress), domainData = _a.domainData, domainType = _a.domainType;
@@ -739,19 +740,26 @@ var DGMarketplace = /** @class */ (function () {
             });
         });
     };
-    DGMarketplace.prototype.sendAsGift = function (userAddress, giftAddress, tokenAddress, tokenId) {
+    DGMarketplace.prototype.sendAsGift = function (userAddress, giftAddress, tokenAddress, tokenId, price) {
         return __awaiter(this, void 0, void 0, function () {
-            var approveHex, _a, domainData, domainType, nonce, message, dataToSign, userSignature, serverPayload, response, data, error_15;
+            var isValid, priceWei, approveHex, _a, domainData, domainType, nonce, message, dataToSign, userSignature, serverPayload, response, data, error_15;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _b.trys.push([0, 6, , 7]);
-                        return [4 /*yield*/, this.contract.populateTransaction.buyForGift(tokenAddress, [tokenId], giftAddress)];
+                        _b.trys.push([0, 7, , 8]);
+                        return [4 /*yield*/, this.validateListing(tokenAddress, tokenId)];
                     case 1:
+                        isValid = _b.sent();
+                        if (!isValid) {
+                            throw new Error("Invalid listing");
+                        }
+                        priceWei = ethers_1.ethers.utils.parseEther(price);
+                        return [4 /*yield*/, this.contract.populateTransaction.buyForGift(tokenAddress, [tokenId], giftAddress, [priceWei])];
+                    case 2:
                         approveHex = _b.sent();
                         _a = (0, DGUtils_util_1.getDomainData)(this.contractAddress, this.contractAddress, userAddress), domainData = _a.domainData, domainType = _a.domainType;
                         return [4 /*yield*/, this.contract.getNonce(userAddress)];
-                    case 2:
+                    case 3:
                         nonce = _b.sent();
                         message = {
                             nonce: nonce.toString(),
@@ -768,7 +776,7 @@ var DGMarketplace = /** @class */ (function () {
                             message: message,
                         });
                         return [4 /*yield*/, this.requestUserSignature(userAddress, dataToSign)];
-                    case 3:
+                    case 4:
                         userSignature = _b.sent();
                         serverPayload = JSON.stringify({
                             transactionData: {
@@ -780,19 +788,19 @@ var DGMarketplace = /** @class */ (function () {
                             },
                         });
                         return [4 /*yield*/, this.post(this.gasServerUrl, serverPayload)];
-                    case 4:
+                    case 5:
                         response = _b.sent();
                         return [4 /*yield*/, response.json()];
-                    case 5:
+                    case 6:
                         data = _b.sent();
                         if (data.ok === false) {
                             throw new Error(data.message);
                         }
                         return [2 /*return*/, data];
-                    case 6:
+                    case 7:
                         error_15 = _b.sent();
                         throw error_15;
-                    case 7: return [2 /*return*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });

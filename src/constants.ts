@@ -262,6 +262,19 @@ export const CONTRACT_ABI = [
     inputs: [
       {
         indexed: false,
+        internalType: "uint256",
+        name: "_newFee",
+        type: "uint256",
+      },
+    ],
+    name: "SetFeeTips",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
         internalType: "address",
         name: "sender",
         type: "address",
@@ -289,6 +302,94 @@ export const CONTRACT_ABI = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "_to",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "_from",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "_feeAmount",
+        type: "uint256",
+      },
+    ],
+    name: "TippedToken",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "_affiliate",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
+    ],
+    name: "affiliateFee",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "_affiliate",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "affiliatePaid",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "affiliate",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "referral",
+        type: "address",
+      },
+    ],
+    name: "affiliateReferred",
+    type: "event",
+  },
+  {
     stateMutability: "payable",
     type: "fallback",
   },
@@ -307,7 +408,7 @@ export const CONTRACT_ABI = [
   },
   {
     inputs: [],
-    name: "acceptedToken",
+    name: "ICE_token",
     outputs: [
       {
         internalType: "contract IERC20",
@@ -320,7 +421,20 @@ export const CONTRACT_ABI = [
   },
   {
     inputs: [],
-    name: "backWallet",
+    name: "USDC_token",
+    outputs: [
+      {
+        internalType: "contract IERC20",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "adminWallet",
     outputs: [
       {
         internalType: "address",
@@ -335,11 +449,16 @@ export const CONTRACT_ABI = [
     inputs: [
       {
         internalType: "address",
-        name: "_user",
+        name: "_affiliate",
         type: "address",
       },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
     ],
-    name: "blackList",
+    name: "affiliatePayout",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -354,6 +473,11 @@ export const CONTRACT_ABI = [
       {
         internalType: "uint256[]",
         name: "_tokenIds",
+        type: "uint256[]",
+      },
+      {
+        internalType: "uint256[]",
+        name: "agreedPrices",
         type: "uint256[]",
       },
     ],
@@ -379,26 +503,13 @@ export const CONTRACT_ABI = [
         name: "_transferTo",
         type: "address",
       },
+      {
+        internalType: "uint256[]",
+        name: "agreedPrices",
+        type: "uint256[]",
+      },
     ],
     name: "buyForGift",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_nftAddress",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "buyFreeClaim",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -419,30 +530,6 @@ export const CONTRACT_ABI = [
     name: "cancel",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    name: "claimKeeper",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -511,19 +598,6 @@ export const CONTRACT_ABI = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "freeClaimCost",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "address",
@@ -555,6 +629,54 @@ export const CONTRACT_ABI = [
         type: "uint256",
       },
     ],
+    name: "getOrderActive",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_nftAddress",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "getOrderBeneficiary",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_nftAddress",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_tokenId",
+        type: "uint256",
+      },
+    ],
     name: "getPrice",
     outputs: [
       {
@@ -567,13 +689,7 @@ export const CONTRACT_ABI = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "contract IERC20",
-        name: "_acceptedToken",
-        type: "address",
-      },
-    ],
+    inputs: [],
     name: "initialize",
     outputs: [],
     stateMutability: "nonpayable",
@@ -604,25 +720,6 @@ export const CONTRACT_ABI = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    name: "isBlacklisted",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "minPrice",
     outputs: [
@@ -633,40 +730,6 @@ export const CONTRACT_ABI = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "operator",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "from",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
-      },
-    ],
-    name: "onERC721Received",
-    outputs: [
-      {
-        internalType: "bytes4",
-        name: "",
-        type: "bytes4",
-      },
-    ],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -717,41 +780,35 @@ export const CONTRACT_ABI = [
     type: "function",
   },
   {
-    inputs: [
+    inputs: [],
+    name: "paperKeyManager",
+    outputs: [
       {
-        internalType: "uint256",
-        name: "paymentId",
-        type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "_transferTo",
+        internalType: "contract IPaperKeyManager",
+        name: "",
         type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_nftAddress",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes32",
-        name: "_nonce",
-        type: "bytes32",
-      },
-      {
-        internalType: "bytes",
-        name: "_signature",
-        type: "bytes",
       },
     ],
-    name: "paperCallback",
-    outputs: [],
-    stateMutability: "payable",
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "referrers",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -768,21 +825,49 @@ export const CONTRACT_ABI = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_user",
-        type: "address",
-      },
-    ],
-    name: "removeFromBlacklist",
+    inputs: [],
+    name: "renounceOwnership",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
     inputs: [],
-    name: "renounceOwnership",
+    name: "router",
+    outputs: [
+      {
+        internalType: "contract Router",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_nftAddress",
+        type: "address",
+      },
+      {
+        internalType: "uint256[]",
+        name: "_tokenIds",
+        type: "uint256[]",
+      },
+      {
+        internalType: "uint256[]",
+        name: "_prices",
+        type: "uint256[]",
+      },
+      {
+        internalType: "address",
+        name: "affiliate",
+        type: "address",
+      },
+    ],
+    name: "sell",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -814,16 +899,11 @@ export const CONTRACT_ABI = [
     inputs: [
       {
         internalType: "address",
-        name: "_nftAddress",
+        name: "_adminWallet",
         type: "address",
       },
-      {
-        internalType: "uint256[]",
-        name: "_tokenIds",
-        type: "uint256[]",
-      },
     ],
-    name: "sellFreeClaim",
+    name: "setAdminWallet",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -832,11 +912,16 @@ export const CONTRACT_ABI = [
     inputs: [
       {
         internalType: "address",
-        name: "_backWallet",
+        name: "_affiliate",
         type: "address",
       },
+      {
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
     ],
-    name: "setBackWallet",
+    name: "setAffiliateFee",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -871,11 +956,11 @@ export const CONTRACT_ABI = [
     inputs: [
       {
         internalType: "uint256",
-        name: "_freeClaimCost",
+        name: "_newFee",
         type: "uint256",
       },
     ],
-    name: "setFreeClaimCost",
+    name: "setFeeTips",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -897,23 +982,49 @@ export const CONTRACT_ABI = [
     inputs: [
       {
         internalType: "address",
-        name: "_nftAddress",
+        name: "_affiliate",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_referral",
+        type: "address",
+      },
+    ],
+    name: "setReferralAffiliate",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_to",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "_tokenId",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_newPrice",
+        name: "_amount",
         type: "uint256",
       },
     ],
-    name: "setPrice",
+    name: "tipToken",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "tipsFee",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -955,50 +1066,8 @@ export const CONTRACT_ABI = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_nftAddress",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "withdrawERC721",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     stateMutability: "payable",
     type: "receive",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_nftAddress",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "getOrderActive",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
   },
 ];
 

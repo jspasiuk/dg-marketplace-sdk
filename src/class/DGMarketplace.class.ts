@@ -592,16 +592,25 @@ class DGMarketplace {
     }
   }
 
-  async buyItem(userAddress: string, tokenAddress: string, tokenId: string) {
+  async buyItem(
+    userAddress: string,
+    tokenAddress: string,
+    tokenId: string,
+    price: string
+  ) {
     try {
       const isValid = await this.validateListing(tokenAddress, tokenId);
+
       if (!isValid) {
         throw new Error("Invalid listing");
       }
 
+      const priceWei = ethers.utils.parseEther(price);
+
       const approveHex = await this.contract.populateTransaction.buy(
         tokenAddress,
-        [tokenId]
+        [tokenId],
+        [priceWei]
       );
 
       const { domainData, domainType } = getDomainData(
@@ -665,21 +674,6 @@ class DGMarketplace {
     try {
       const isValid = await this.contract.getOrderActive(tokenAddress, tokenId);
       return isValid;
-
-      /*
-      const body = {
-        nftAddress: tokenAddress,
-        tokenId,
-      };
-      const response = await this.post(
-        `${this.apiUrl}/marketplace/listings/market-validate-published-nft`,
-        JSON.stringify(body)
-      );
-
-      const data = await response.json();
-
-      return data?.data?.isValid;
-      */
     } catch (error) {
       throw error;
     }
@@ -689,13 +683,22 @@ class DGMarketplace {
     userAddress: string,
     giftAddress: string,
     tokenAddress: string,
-    tokenId: string
+    tokenId: string,
+    price: string
   ) {
     try {
+      const isValid = await this.validateListing(tokenAddress, tokenId);
+      if (!isValid) {
+        throw new Error("Invalid listing");
+      }
+
+      const priceWei = ethers.utils.parseEther(price);
+
       const approveHex = await this.contract.populateTransaction.buyForGift(
         tokenAddress,
         [tokenId],
-        giftAddress
+        giftAddress,
+        [priceWei]
       );
 
       const { domainData, domainType } = getDomainData(
