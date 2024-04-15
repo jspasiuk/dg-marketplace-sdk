@@ -863,34 +863,6 @@ exports.CONTRACT_ABI = [
                 name: "_prices",
                 type: "uint256[]",
             },
-            {
-                internalType: "address",
-                name: "affiliate",
-                type: "address",
-            },
-        ],
-        name: "sell",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "_nftAddress",
-                type: "address",
-            },
-            {
-                internalType: "uint256[]",
-                name: "_tokenIds",
-                type: "uint256[]",
-            },
-            {
-                internalType: "uint256[]",
-                name: "_prices",
-                type: "uint256[]",
-            },
         ],
         name: "sell",
         outputs: [],
