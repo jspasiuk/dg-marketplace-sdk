@@ -442,9 +442,100 @@ var DGMarketplace = /** @class */ (function () {
             });
         });
     };
+    DGMarketplace.prototype.searchCollections = function (_a) {
+        var _b;
+        var _c = _a.searchCriteria, searchCriteria = _c === void 0 ? null : _c;
+        return __awaiter(this, void 0, void 0, function () {
+            var query, response, queryResponse, responseWithProxy, Collections, _i, responseWithProxy_3, collection, CollectionImages, _d, _e, token, tokenUri, metadataInfo, metadata, error_8, error_9;
+            return __generator(this, function (_f) {
+                switch (_f.label) {
+                    case 0:
+                        this.validateConnection();
+                        _f.label = 1;
+                    case 1:
+                        _f.trys.push([1, 16, , 17]);
+                        query = "\n      {\n        nftAddressSearch(text: \"".concat(searchCriteria, "\", where: {NFTs_: { forSale: true}}) {\n          id\n          collectionName\n          collectionSymbol\n          collectionType\n          profilePicture\n          profilePortrait\n          floorPrice\n          verified\n          NFTs(first: 1, where: {forSale: true}) {\n            tokenURI\n          }\n        }\n      }");
+                        return [4 /*yield*/, this.getGraphQuery(query)];
+                    case 2:
+                        response = _f.sent();
+                        queryResponse = (_b = response.data) === null || _b === void 0 ? void 0 : _b.nftAddressSearch;
+                        return [4 /*yield*/, this.proxyGraphCollections(JSON.stringify(queryResponse))];
+                    case 3:
+                        responseWithProxy = _f.sent();
+                        Collections = [];
+                        _i = 0, responseWithProxy_3 = responseWithProxy;
+                        _f.label = 4;
+                    case 4:
+                        if (!(_i < responseWithProxy_3.length)) return [3 /*break*/, 15];
+                        collection = responseWithProxy_3[_i];
+                        _f.label = 5;
+                    case 5:
+                        _f.trys.push([5, 13, , 14]);
+                        CollectionImages = [];
+                        if (!collection.NFTs) return [3 /*break*/, 12];
+                        _d = 0, _e = collection.NFTs;
+                        _f.label = 6;
+                    case 6:
+                        if (!(_d < _e.length)) return [3 /*break*/, 12];
+                        token = _e[_d];
+                        tokenUri = this.switchIpfsUri(token.tokenURI);
+                        metadataInfo = void 0;
+                        metadata = void 0;
+                        if (!token.image) return [3 /*break*/, 7];
+                        CollectionImages.push(token.image);
+                        return [3 /*break*/, 11];
+                    case 7:
+                        if (!token.metadata) return [3 /*break*/, 8];
+                        metadata = JSON.parse(token.metadata);
+                        CollectionImages.push(metadata.image);
+                        return [3 /*break*/, 11];
+                    case 8: return [4 /*yield*/, fetch(tokenUri)];
+                    case 9:
+                        metadataInfo = _f.sent();
+                        return [4 /*yield*/, metadataInfo.json()];
+                    case 10:
+                        metadata = _f.sent();
+                        CollectionImages.push(this.switchIpfsUri(metadata.image));
+                        _f.label = 11;
+                    case 11:
+                        _d++;
+                        return [3 /*break*/, 6];
+                    case 12:
+                        Collections.push({
+                            address: collection.id,
+                            name: collection.collectionName,
+                            symbol: collection.collectionSymbol,
+                            floorPrice: collection.floorPrice,
+                            type: collection.collectionType,
+                            images: CollectionImages,
+                            verified: collection.verified,
+                            profilePicture: collection.profilePicture
+                                ? this.switchIpfsUri(collection.profilePicture)
+                                : null,
+                            profilePortrait: collection.profilePortrait
+                                ? this.switchIpfsUri(collection.profilePortrait)
+                                : null,
+                        });
+                        return [3 /*break*/, 14];
+                    case 13:
+                        error_8 = _f.sent();
+                        console.error(error_8);
+                        return [3 /*break*/, 14];
+                    case 14:
+                        _i++;
+                        return [3 /*break*/, 4];
+                    case 15: return [2 /*return*/, Collections];
+                    case 16:
+                        error_9 = _f.sent();
+                        throw error_9;
+                    case 17: return [2 /*return*/];
+                }
+            });
+        });
+    };
     DGMarketplace.prototype.proxyGraphCollections = function (queryResult) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, data, error_8;
+            var response, data, error_10;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -457,8 +548,8 @@ var DGMarketplace = /** @class */ (function () {
                         data = _a.sent();
                         return [2 /*return*/, data];
                     case 3:
-                        error_8 = _a.sent();
-                        console.error(error_8);
+                        error_10 = _a.sent();
+                        console.error(error_10);
                         return [3 /*break*/, 4];
                     case 4: return [2 /*return*/];
                 }
@@ -468,7 +559,7 @@ var DGMarketplace = /** @class */ (function () {
     DGMarketplace.prototype.getCollectionsFromDG = function (_a) {
         var sellerAddress = _a.sellerAddress, collectionName = _a.collectionName, limit = _a.limit, offset = _a.offset, filterCollections = _a.filterCollections;
         return __awaiter(this, void 0, void 0, function () {
-            var url, response, data, Collections, _i, _b, collection, CollectionImages, _c, _d, image, error_9;
+            var url, response, data, Collections, _i, _b, collection, CollectionImages, _c, _d, image, error_11;
             return __generator(this, function (_e) {
                 switch (_e.label) {
                     case 0:
@@ -507,8 +598,8 @@ var DGMarketplace = /** @class */ (function () {
                         }
                         return [2 /*return*/, Collections];
                     case 4:
-                        error_9 = _e.sent();
-                        throw error_9;
+                        error_11 = _e.sent();
+                        throw error_11;
                     case 5: return [2 /*return*/];
                 }
             });
@@ -516,7 +607,7 @@ var DGMarketplace = /** @class */ (function () {
     };
     DGMarketplace.prototype.getGroups = function (collectionAddress, order, limit, offset, name, sellerAddress) {
         return __awaiter(this, void 0, void 0, function () {
-            var url, response, data, Groups, _i, _a, group, image, price, error_10;
+            var url, response, data, Groups, _i, _a, group, image, price, error_12;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -563,8 +654,8 @@ var DGMarketplace = /** @class */ (function () {
                         }
                         return [2 /*return*/, Groups];
                     case 4:
-                        error_10 = _b.sent();
-                        throw error_10;
+                        error_12 = _b.sent();
+                        throw error_12;
                     case 5: return [2 /*return*/];
                 }
             });
@@ -572,7 +663,7 @@ var DGMarketplace = /** @class */ (function () {
     };
     DGMarketplace.prototype.getTokens = function (collectionAddress, groupId, sellerAddress, limit, offset) {
         return __awaiter(this, void 0, void 0, function () {
-            var url, response, data, Tokens, _i, _a, token, image, price, error_11;
+            var url, response, data, Tokens, _i, _a, token, image, price, error_13;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -610,8 +701,8 @@ var DGMarketplace = /** @class */ (function () {
                         }
                         return [2 /*return*/, Tokens];
                     case 4:
-                        error_11 = _b.sent();
-                        throw error_11;
+                        error_13 = _b.sent();
+                        throw error_13;
                     case 5: return [2 /*return*/];
                 }
             });
@@ -619,7 +710,7 @@ var DGMarketplace = /** @class */ (function () {
     };
     DGMarketplace.prototype.getPaymentLink = function (platform, buyerAddress, tokenAddress, tokenId, resourceId) {
         return __awaiter(this, void 0, void 0, function () {
-            var isValid, response, data, error_12;
+            var isValid, response, data, error_14;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -649,8 +740,8 @@ var DGMarketplace = /** @class */ (function () {
                         data = _a.sent();
                         return [2 /*return*/, data.data];
                     case 5:
-                        error_12 = _a.sent();
-                        throw error_12;
+                        error_14 = _a.sent();
+                        throw error_14;
                     case 6: return [2 /*return*/];
                 }
             });
@@ -658,7 +749,7 @@ var DGMarketplace = /** @class */ (function () {
     };
     DGMarketplace.prototype.buyItem = function (userAddress, tokenAddress, tokenId, price) {
         return __awaiter(this, void 0, void 0, function () {
-            var isValid, priceWei, approveHex, _a, domainData, domainType, nonce, message, dataToSign, userSignature, serverPayload, response, data, error_13;
+            var isValid, priceWei, approveHex, _a, domainData, domainType, nonce, message, dataToSign, userSignature, serverPayload, response, data, error_15;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -714,8 +805,8 @@ var DGMarketplace = /** @class */ (function () {
                         }
                         return [2 /*return*/, data];
                     case 7:
-                        error_13 = _b.sent();
-                        throw error_13;
+                        error_15 = _b.sent();
+                        throw error_15;
                     case 8: return [2 /*return*/];
                 }
             });
@@ -723,7 +814,7 @@ var DGMarketplace = /** @class */ (function () {
     };
     DGMarketplace.prototype.validateListing = function (tokenAddress, tokenId) {
         return __awaiter(this, void 0, void 0, function () {
-            var isValid, error_14;
+            var isValid, error_16;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -733,8 +824,8 @@ var DGMarketplace = /** @class */ (function () {
                         isValid = _a.sent();
                         return [2 /*return*/, isValid];
                     case 2:
-                        error_14 = _a.sent();
-                        throw error_14;
+                        error_16 = _a.sent();
+                        throw error_16;
                     case 3: return [2 /*return*/];
                 }
             });
@@ -742,7 +833,7 @@ var DGMarketplace = /** @class */ (function () {
     };
     DGMarketplace.prototype.sendAsGift = function (userAddress, giftAddress, tokenAddress, tokenId, price) {
         return __awaiter(this, void 0, void 0, function () {
-            var isValid, priceWei, approveHex, _a, domainData, domainType, nonce, message, dataToSign, userSignature, serverPayload, response, data, error_15;
+            var isValid, priceWei, approveHex, _a, domainData, domainType, nonce, message, dataToSign, userSignature, serverPayload, response, data, error_17;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -798,8 +889,8 @@ var DGMarketplace = /** @class */ (function () {
                         }
                         return [2 /*return*/, data];
                     case 7:
-                        error_15 = _b.sent();
-                        throw error_15;
+                        error_17 = _b.sent();
+                        throw error_17;
                     case 8: return [2 /*return*/];
                 }
             });
@@ -807,7 +898,7 @@ var DGMarketplace = /** @class */ (function () {
     };
     DGMarketplace.prototype.cancelPublishedItem = function (metamaskProvider, userAddress, tokenAddress, tokenIdArray) {
         return __awaiter(this, void 0, void 0, function () {
-            var i, tokenId, isValid, approveHex, _a, domainData, domainType, nonce, message, dataToSign, metamaskSignature, serverPayload, response, data, error_16;
+            var i, tokenId, isValid, approveHex, _a, domainData, domainType, nonce, message, dataToSign, metamaskSignature, serverPayload, response, data, error_18;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -876,8 +967,8 @@ var DGMarketplace = /** @class */ (function () {
                         }
                         return [2 /*return*/, data];
                     case 10:
-                        error_16 = _b.sent();
-                        throw error_16;
+                        error_18 = _b.sent();
+                        throw error_18;
                     case 11: return [2 /*return*/];
                 }
             });
@@ -885,7 +976,7 @@ var DGMarketplace = /** @class */ (function () {
     };
     DGMarketplace.prototype.approveContractIce = function (userWallet) {
         return __awaiter(this, void 0, void 0, function () {
-            var approveHex, _a, iceDomainData, ICEdomainType, nonce, message, dataToSign, userSignature, serverPayload, response, data, error_17;
+            var approveHex, _a, iceDomainData, ICEdomainType, nonce, message, dataToSign, userSignature, serverPayload, response, data, error_19;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -934,8 +1025,8 @@ var DGMarketplace = /** @class */ (function () {
                         }
                         return [2 /*return*/, data];
                     case 6:
-                        error_17 = _b.sent();
-                        throw error_17;
+                        error_19 = _b.sent();
+                        throw error_19;
                     case 7: return [2 /*return*/];
                 }
             });
@@ -943,7 +1034,7 @@ var DGMarketplace = /** @class */ (function () {
     };
     DGMarketplace.prototype.getTransactionStatus = function (txnHash) {
         return __awaiter(this, void 0, void 0, function () {
-            var txReceipt, error_18;
+            var txReceipt, error_20;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -970,8 +1061,8 @@ var DGMarketplace = /** @class */ (function () {
                         }
                         return [3 /*break*/, 7];
                     case 6:
-                        error_18 = _a.sent();
-                        throw error_18;
+                        error_20 = _a.sent();
+                        throw error_20;
                     case 7: return [2 /*return*/];
                 }
             });
@@ -979,7 +1070,7 @@ var DGMarketplace = /** @class */ (function () {
     };
     DGMarketplace.prototype.getCoinbaseStatus = function (paymentCode) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, data, error_19;
+            var response, data, error_21;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -992,8 +1083,8 @@ var DGMarketplace = /** @class */ (function () {
                         data = _a.sent();
                         return [2 /*return*/, data];
                     case 3:
-                        error_19 = _a.sent();
-                        throw error_19;
+                        error_21 = _a.sent();
+                        throw error_21;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -1001,7 +1092,7 @@ var DGMarketplace = /** @class */ (function () {
     };
     DGMarketplace.prototype.getTokenMetadata = function (collectionAddress, tokenId) {
         return __awaiter(this, void 0, void 0, function () {
-            var provider, contract, tokenUri, fixedUri, response, data, error_20;
+            var provider, contract, tokenUri, fixedUri, response, data, error_22;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1023,8 +1114,8 @@ var DGMarketplace = /** @class */ (function () {
                     case 4: throw new Error("Invalid token URI");
                     case 5: return [3 /*break*/, 7];
                     case 6:
-                        error_20 = _a.sent();
-                        throw error_20;
+                        error_22 = _a.sent();
+                        throw error_22;
                     case 7: return [2 /*return*/];
                 }
             });
@@ -1057,7 +1148,7 @@ var DGMarketplace = /** @class */ (function () {
     };
     DGMarketplace.prototype.getGraphQuery = function (graphqlQuery) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, data, error_21;
+            var response, data, error_23;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1079,8 +1170,8 @@ var DGMarketplace = /** @class */ (function () {
                         data = _a.sent();
                         return [2 /*return*/, data];
                     case 3:
-                        error_21 = _a.sent();
-                        throw error_21;
+                        error_23 = _a.sent();
+                        throw error_23;
                     case 4: return [2 /*return*/];
                 }
             });

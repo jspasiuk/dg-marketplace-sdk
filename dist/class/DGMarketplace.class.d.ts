@@ -62,6 +62,19 @@ declare class DGMarketplace {
         profilePicture: string | null;
         profilePortrait: string | null;
     }[]>;
+    searchCollections({ searchCriteria, }: {
+        searchCriteria: string | null;
+    }): Promise<{
+        address: any;
+        name: any;
+        symbol: any;
+        floorPrice: any;
+        type: any;
+        images: any[];
+        verified: any;
+        profilePicture: string | null;
+        profilePortrait: string | null;
+    }[]>;
     proxyGraphCollections(queryResult: string): Promise<any>;
     getCollectionsFromDG({ sellerAddress, collectionName, limit, offset, filterCollections, }: {
         sellerAddress: string;

@@ -376,6 +376,87 @@ class DGMarketplace {
     }
   }
 
+  async searchCollections({
+    searchCriteria = null,
+  }: {
+    searchCriteria: string | null;
+  }) {
+    this.validateConnection();
+    try {
+      const query = `
+      {
+        nftAddressSearch(text: "${searchCriteria}", where: {NFTs_: { forSale: true}}) {
+          id
+          collectionName
+          collectionSymbol
+          collectionType
+          profilePicture
+          profilePortrait
+          floorPrice
+          verified
+          NFTs(first: 1, where: {forSale: true}) {
+            tokenURI
+          }
+        }
+      }`;
+
+      const response = await this.getGraphQuery(query);
+
+      const queryResponse = response.data?.nftAddressSearch;
+
+      const responseWithProxy = await this.proxyGraphCollections(
+        JSON.stringify(queryResponse)
+      );
+
+      const Collections = [];
+      for (const collection of responseWithProxy) {
+        try {
+          const CollectionImages = [];
+          if (collection.NFTs) {
+            for (const token of collection.NFTs) {
+              const tokenUri = this.switchIpfsUri(token.tokenURI);
+              let metadataInfo;
+              let metadata;
+              if (token.image) {
+                CollectionImages.push(token.image);
+              } else {
+                if (token.metadata) {
+                  metadata = JSON.parse(token.metadata);
+                  CollectionImages.push(metadata.image);
+                } else {
+                  metadataInfo = await fetch(tokenUri);
+                  metadata = await metadataInfo.json();
+                  CollectionImages.push(this.switchIpfsUri(metadata.image));
+                }
+              }
+            }
+          }
+          Collections.push({
+            address: collection.id,
+            name: collection.collectionName,
+            symbol: collection.collectionSymbol,
+            floorPrice: collection.floorPrice,
+            type: collection.collectionType,
+            images: CollectionImages,
+            verified: collection.verified,
+            profilePicture: collection.profilePicture
+              ? this.switchIpfsUri(collection.profilePicture)
+              : null,
+            profilePortrait: collection.profilePortrait
+              ? this.switchIpfsUri(collection.profilePortrait)
+              : null,
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      return Collections;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async proxyGraphCollections(queryResult: string) {
     try {
       const response = await this.post(
