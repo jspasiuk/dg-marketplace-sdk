@@ -206,6 +206,9 @@ class DGMarketplace {
         JSON.stringify(queryResponse)
       );
 
+      console.log("responseWithProxy", responseWithProxy);
+      debugger;
+
       const Collections: any = {
         allCollections: [],
         highlightedCollections: [],
@@ -252,9 +255,13 @@ class DGMarketplace {
                 metadata = JSON.parse(token.metadata);
                 CollectionImages.push(metadata.image);
               } else {
-                metadataInfo = await fetch(tokenUri);
-                metadata = await metadataInfo.json();
-                CollectionImages.push(this.switchIpfsUri(metadata.image));
+                try {
+                  metadataInfo = await fetch(tokenUri);
+                  metadata = await metadataInfo.json();
+                  CollectionImages.push(this.switchIpfsUri(metadata.image));
+                } catch (error) {
+                  continue;
+                }
               }
             }
           }
