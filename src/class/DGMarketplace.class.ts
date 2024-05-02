@@ -206,9 +206,6 @@ class DGMarketplace {
         JSON.stringify(queryResponse)
       );
 
-      console.log("responseWithProxy", responseWithProxy);
-      debugger;
-
       const Collections: any = {
         allCollections: [],
         highlightedCollections: [],
@@ -513,6 +510,7 @@ class DGMarketplace {
         Collections.push({
           address: collection.nftAddress,
           name: collection.name,
+          collectionName: collection.collectionName,
           images: CollectionImages,
           isVerifiedCreator: collection.isVerified,
         });
@@ -583,6 +581,7 @@ class DGMarketplace {
         Groups.push({
           address: group.nftAddress,
           name: group.name,
+          collectionName: group.collectionName,
           image,
           tokenId: group.tokenId,
           price,

@@ -232,8 +232,6 @@ var DGMarketplace = /** @class */ (function () {
                         return [4 /*yield*/, this.proxyGraphCollections(JSON.stringify(queryResponse))];
                     case 3:
                         responseWithProxy = _d.sent();
-                        console.log("responseWithProxy", responseWithProxy);
-                        debugger;
                         Collections = {
                             allCollections: [],
                             highlightedCollections: [],
@@ -599,6 +597,7 @@ var DGMarketplace = /** @class */ (function () {
                             Collections.push({
                                 address: collection.nftAddress,
                                 name: collection.name,
+                                collectionName: collection.collectionName,
                                 images: CollectionImages,
                                 isVerifiedCreator: collection.isVerified,
                             });
@@ -647,6 +646,7 @@ var DGMarketplace = /** @class */ (function () {
                             Groups.push({
                                 address: group.nftAddress,
                                 name: group.name,
+                                collectionName: group.collectionName,
                                 image: image,
                                 tokenId: group.tokenId,
                                 price: price,

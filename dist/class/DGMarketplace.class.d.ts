@@ -85,6 +85,7 @@ declare class DGMarketplace {
     }): Promise<{
         address: any;
         name: any;
+        collectionName: any;
         images: string[];
         isVerifiedCreator: any;
     }[]>;
@@ -92,6 +93,7 @@ declare class DGMarketplace {
     getGroups(collectionAddress: string, order?: string, limit?: number, offset?: number, name?: string, sellerAddress?: string): Promise<{
         address: any;
         name: any;
+        collectionName: any;
         image: string;
         tokenId: any;
         price: any;
