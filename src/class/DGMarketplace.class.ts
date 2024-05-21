@@ -389,7 +389,7 @@ class DGMarketplace {
     try {
       const query = `
       {
-        nftAddressSearch(text: "${searchCriteria}", where: {NFTs_: { forSale: true}}) {
+        nftAddressSearch(text: "'${searchCriteria}'", where: {NFTs_: { forSale: true}}) {
           id
           collectionName
           collectionSymbol

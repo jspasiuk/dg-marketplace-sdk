@@ -45,9 +45,9 @@ export function getDomainData(
 ) {
   const domainData = {
     name: "DGMarketplace",
-    version: "v1.0",
+    version: "v2.0",
     verifyingContract: contractAddress,
-    chainId: 1,
+    salt: "0x0000000000000000000000000000000000000000000000000000000000000089",
   };
 
   const iceDomainData = {
@@ -74,8 +74,8 @@ export function getDomainData(
   const domainType = [
     { name: "name", type: "string" },
     { name: "version", type: "string" },
-    { name: "chainId", type: "uint256" },
     { name: "verifyingContract", type: "address" },
+    { name: "salt", type: "bytes32" },
   ];
 
   const ICEdomainType = [

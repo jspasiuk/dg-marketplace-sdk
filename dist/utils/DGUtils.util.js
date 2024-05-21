@@ -45,9 +45,9 @@ function padEnd(src, length) {
 function getDomainData(contractAddress, salt, address) {
     var domainData = {
         name: "DGMarketplace",
-        version: "v1.0",
+        version: "v2.0",
         verifyingContract: contractAddress,
-        chainId: 1,
+        salt: "0x0000000000000000000000000000000000000000000000000000000000000089",
     };
     var iceDomainData = {
         name: "Bag(PoS)",
@@ -70,8 +70,8 @@ function getDomainData(contractAddress, salt, address) {
     var domainType = [
         { name: "name", type: "string" },
         { name: "version", type: "string" },
-        { name: "chainId", type: "uint256" },
         { name: "verifyingContract", type: "address" },
+        { name: "salt", type: "bytes32" },
     ];
     var ICEdomainType = [
         { name: "name", type: "string" },

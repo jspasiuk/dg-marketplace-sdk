@@ -459,7 +459,7 @@ var DGMarketplace = /** @class */ (function () {
                         _f.label = 1;
                     case 1:
                         _f.trys.push([1, 16, , 17]);
-                        query = "\n      {\n        nftAddressSearch(text: \"".concat(searchCriteria, "\", where: {NFTs_: { forSale: true}}) {\n          id\n          collectionName\n          collectionSymbol\n          collectionType\n          profilePicture\n          profilePortrait\n          floorPrice\n          verified\n          NFTs(first: 1, where: {forSale: true}) {\n            tokenURI\n          }\n        }\n      }");
+                        query = "\n      {\n        nftAddressSearch(text: \"'".concat(searchCriteria, "'\", where: {NFTs_: { forSale: true}}) {\n          id\n          collectionName\n          collectionSymbol\n          collectionType\n          profilePicture\n          profilePortrait\n          floorPrice\n          verified\n          NFTs(first: 1, where: {forSale: true}) {\n            tokenURI\n          }\n        }\n      }");
                         return [4 /*yield*/, this.getGraphQuery(query)];
                     case 2:
                         response = _f.sent();
