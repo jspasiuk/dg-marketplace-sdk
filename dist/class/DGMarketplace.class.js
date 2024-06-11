@@ -981,60 +981,24 @@ var DGMarketplace = /** @class */ (function () {
             });
         });
     };
-    DGMarketplace.prototype.approveContractIce = function (userWallet) {
+    DGMarketplace.prototype.approveContractIce = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var approveHex, _a, iceDomainData, ICEdomainType, nonce, message, dataToSign, userSignature, serverPayload, response, data, error_20;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var etherProvider, signer, contract, transaction, error_20;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
-                        _b.trys.push([0, 6, , 7]);
-                        return [4 /*yield*/, this.iceContract.populateTransaction.approve(this.contractAddress, "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")];
+                        _a.trys.push([0, 2, , 3]);
+                        etherProvider = new ethers_1.ethers.providers.Web3Provider(this.walletProvider);
+                        signer = etherProvider.getSigner();
+                        contract = new ethers_1.ethers.Contract(this.iceAddress, constants_1.ABI_20, signer);
+                        return [4 /*yield*/, contract.approve(this.contractAddress, "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")];
                     case 1:
-                        approveHex = _b.sent();
-                        _a = (0, DGUtils_util_1.getDomainData)(this.iceAddress, this.iceAddress, ""), iceDomainData = _a.iceDomainData, ICEdomainType = _a.ICEdomainType;
-                        return [4 /*yield*/, this.iceContract.getNonce(userWallet)];
+                        transaction = _a.sent();
+                        return [2 /*return*/, transaction];
                     case 2:
-                        nonce = _b.sent();
-                        message = {
-                            nonce: nonce.toString(),
-                            from: userWallet,
-                            functionSignature: approveHex.data,
-                        };
-                        dataToSign = JSON.stringify({
-                            types: {
-                                EIP712Domain: ICEdomainType,
-                                MetaTransaction: DGUtils_util_1.metaTransactionType,
-                            },
-                            domain: iceDomainData,
-                            primaryType: "MetaTransaction",
-                            message: message,
-                        });
-                        return [4 /*yield*/, this.requestUserSignature(userWallet, dataToSign)];
-                    case 3:
-                        userSignature = _b.sent();
-                        serverPayload = JSON.stringify({
-                            transactionData: {
-                                from: userWallet,
-                                params: [
-                                    this.iceAddress,
-                                    (0, DGUtils_util_1.getExecuteMetaTransactionData)(userWallet, userSignature, approveHex.data),
-                                ],
-                            },
-                        });
-                        return [4 /*yield*/, this.post(this.gasServerUrl, serverPayload)];
-                    case 4:
-                        response = _b.sent();
-                        return [4 /*yield*/, response.json()];
-                    case 5:
-                        data = _b.sent();
-                        if (data.ok === false) {
-                            throw new Error(data.message);
-                        }
-                        return [2 /*return*/, data];
-                    case 6:
-                        error_20 = _b.sent();
+                        error_20 = _a.sent();
                         throw error_20;
-                    case 7: return [2 /*return*/];
+                    case 3: return [2 /*return*/];
                 }
             });
         });

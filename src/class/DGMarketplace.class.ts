@@ -924,65 +924,21 @@ class DGMarketplace {
     }
   }
 
-  async approveContractIce(userWallet: string) {
+  async approveContractIce() {
     try {
-      const approveHex = await this.iceContract.populateTransaction.approve(
+      const etherProvider = new ethers.providers.Web3Provider(
+        this.walletProvider
+      );
+      const signer = etherProvider.getSigner();
+
+      const contract = new ethers.Contract(this.iceAddress, ABI_20, signer);
+
+      const transaction = await contract.approve(
         this.contractAddress,
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
       );
 
-      const { iceDomainData, ICEdomainType } = getDomainData(
-        this.iceAddress,
-        this.iceAddress,
-        ""
-      );
-
-      const nonce = await this.iceContract.getNonce(userWallet);
-
-      const message = {
-        nonce: nonce.toString(),
-        from: userWallet,
-        functionSignature: approveHex.data,
-      };
-
-      const dataToSign = JSON.stringify({
-        types: {
-          EIP712Domain: ICEdomainType,
-          MetaTransaction: metaTransactionType,
-        },
-        domain: iceDomainData,
-        primaryType: "MetaTransaction",
-        message: message,
-      });
-
-      const userSignature = await this.requestUserSignature(
-        userWallet,
-        dataToSign
-      );
-
-      const serverPayload = JSON.stringify({
-        transactionData: {
-          from: userWallet,
-          params: [
-            this.iceAddress,
-            getExecuteMetaTransactionData(
-              userWallet,
-              userSignature,
-              approveHex.data
-            ),
-          ],
-        },
-      });
-
-      const response = await this.post(this.gasServerUrl, serverPayload);
-
-      const data = await response.json();
-
-      if (data.ok === false) {
-        throw new Error(data.message);
-      }
-
-      return data;
+      return transaction;
     } catch (error) {
       throw error;
     }

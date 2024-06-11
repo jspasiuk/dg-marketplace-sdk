@@ -45,7 +45,7 @@ function padEnd(src, length) {
 function getDomainData(contractAddress, salt, address) {
     var domainData = {
         name: "DGMarketplace",
-        version: "v2.0",
+        version: "v1.0",
         verifyingContract: contractAddress,
         salt: "0x0000000000000000000000000000000000000000000000000000000000000089",
     };

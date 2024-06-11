@@ -101,42 +101,16 @@ export declare const ERC721CollectionV2: ({
     type: string;
     anonymous?: undefined;
 })[];
-export declare const ABI_20: ({
+export declare const ABI_20: {
+    constant: boolean;
     inputs: {
-        internalType: string;
-        name: string;
-        type: string;
-    }[];
-    stateMutability: string;
-    type: string;
-    anonymous?: undefined;
-    name?: undefined;
-    outputs?: undefined;
-} | {
-    anonymous: boolean;
-    inputs: {
-        indexed: boolean;
-        internalType: string;
-        name: string;
-        type: string;
-    }[];
-    name: string;
-    type: string;
-    stateMutability?: undefined;
-    outputs?: undefined;
-} | {
-    inputs: {
-        internalType: string;
         name: string;
         type: string;
     }[];
     name: string;
     outputs: {
-        internalType: string;
         name: string;
         type: string;
     }[];
-    stateMutability: string;
     type: string;
-    anonymous?: undefined;
-})[];
+}[];
